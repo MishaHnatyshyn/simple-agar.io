@@ -1,16 +1,16 @@
-import {v4 as uuid} from 'uuid';
-import {Position} from './position';
 import {Color} from './colors.enum';
+import GameObject from './gameObject';
 
-export default class Player {
-  private position: Position = { x: 0, y: 0};
-  private radius: number = 15;
-  private id: string = uuid();
-  private color: Color = Color.blue;
-
+export default class Player extends GameObject {
   constructor(
     private name: string,
-  ) {}
+    public readonly id: string,
+  ) {
+    super();
+    this._position = { x: 0, y: 0};
+    this._radius = 15;
+    this._color = Color.blue;
+  }
 
   public updatePosition(x: number, y: number): void {
     this.position.x = x;
@@ -18,6 +18,6 @@ export default class Player {
   }
 
   public updateRadius(radius: number): void {
-    this.radius = radius;
+    this._radius = radius;
   }
 }

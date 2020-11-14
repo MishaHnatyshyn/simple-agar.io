@@ -1,24 +1,44 @@
-import WebSocket, { Server, Data } from 'ws';
+import WebSocket, { Server } from 'ws';
+import {Message} from '../shared/message.interface';
+import {v4 as uuid} from 'uuid';
+
+interface WebSocketWithId extends WebSocket {
+  id: string
+}
 
 export default class WsServer {
   private ws: Server;
-  private connections: WebSocket[];
+  private connections: WebSocketWithId[];
   constructor() {
     this.connections = [];
     this.ws = new Server({ port: 8080 });
   }
 
-  addConnectionHandler(connectionHandler: (socket: WebSocket) => void, messageHandler: (data: Data) => void): void {
-    this.ws.addListener('connection', (socket: WebSocket) => {
-      connectionHandler(socket);
-      socket.addEventListener('message', (data: Data) => {
-        messageHandler(data);
+  attachHandlers(
+    messageHandler: (data: Message<any>, id: string) => void,
+    disconnectHandler: (id: string) => void,
+  ): void {
+    this.ws.addListener('connection', (socket: WebSocketWithId) => {
+      socket.id = uuid();
+      this.connections.push(socket);
+
+      socket.addListener('message', (data: string) => {
+        messageHandler(JSON.parse(data), socket.id);
+      })
+
+      socket.addEventListener('close', () => {
+        this.connections = this.connections.filter(connection => connection !== socket);
+        disconnectHandler(socket.id);
       })
     })
   }
 
-  getConnections(): Set<WebSocket> {
-    return this.ws.clients
+  sendMessageToPlayer(id: string, message: any) {
+    this.connections.find(connection => connection.id === id)?.send(JSON.stringify(message))
+  }
+
+  sendMessageToAllPlayers(message: any) {
+    this.connections.forEach(client => client.send(JSON.stringify(message)))
   }
 }
 

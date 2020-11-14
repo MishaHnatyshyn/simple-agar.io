@@ -10,7 +10,7 @@ export enum ServerMessageType {
   GAME_OVER = 'game_over',
 }
 
-export interface MessageInterface<T> {
+export interface Message<T> {
   type: ServerMessageType | ClientMessageType,
   data: T
 }
