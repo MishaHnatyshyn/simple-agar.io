@@ -10,7 +10,13 @@ export enum ServerMessageType {
   GAME_OVER = 'game_over',
 }
 
-export interface Message<T> {
-  type: ServerMessageType | ClientMessageType,
-  data: T
+export interface BaseMessage<T, D = any> {
+  type: T,
+  data: D
 }
+
+export type ClientMessage<D = any> = BaseMessage<ClientMessageType, D>
+export type ServerMessage<D = any> = BaseMessage<ServerMessageType, D>
+
+export type Message<D = any> = ClientMessage<D> | ServerMessage<D>
+

@@ -3,13 +3,15 @@ import GameObject from './gameObject';
 
 export default class Player extends GameObject {
   constructor(
-    private name: string,
+    public readonly name: string,
     public readonly id: string,
+    radius: number,
+    color: Color,
   ) {
     super();
     this._position = { x: 0, y: 0};
-    this._radius = 15;
-    this._color = Color.blue;
+    this._radius = radius;
+    this._color = color;
   }
 
   public updatePosition(x: number, y: number): void {

@@ -9,3 +9,15 @@ export enum Color {
   orange = 'orange',
   violet = 'violet'
 }
+
+export const COLORS = [
+  Color.red,
+  Color.blue,
+  Color.yellow,
+  Color.green,
+  Color.white,
+  Color.brown,
+  Color.pink,
+  Color.orange,
+  Color.violet,
+]
