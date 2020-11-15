@@ -27,7 +27,7 @@ class Input {
         const direction = Math.atan2(xCoord - window.innerWidth / 2, window.innerHeight / 2 - yCoord);
         // console.log(direction);
 
-        this.websocketService.sendMessage({type: ClientMessageType.CHANGE_POSITION, data: {x: xCoord, y: yCoord}})
+        this.websocketService.sendMessage({type: ClientMessageType.CHANGE_DIRECTION, data: {x: xCoord, y: yCoord}})
     }
 }
 

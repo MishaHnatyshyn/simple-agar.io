@@ -22,4 +22,13 @@ export default class GameObject {
   get id(): string {
     return this._id;
   }
+
+  getSerialisedData() {
+    return {
+      position: this._position,
+      color: this._color,
+      radius: this._radius,
+      id: this._id,
+    }
+  }
 }

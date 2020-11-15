@@ -8,10 +8,13 @@ import {getRandomColor} from './utils';
 import Timeout = NodeJS.Timeout;
 import Food from '../shared/food';
 import FoodGenerator from './foodGenerator';
+import GameObject from '../shared/gameObject';
+import food from '../shared/food';
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
   private timer: Timer = null;
+  private updateInterval: Timeout = null;
   constructor(
     private field: Field,
     private networkChannel: INetworkChannel,
@@ -27,13 +30,15 @@ export default class Game {
   notifyPlayersAboutNewFood(food: Food): void {
     const message = {
       type: ServerMessageType.NEW_FOOD,
-      data: food,
+      data: food.getSerialisedData(),
     }
 
     this.networkChannel.sendMessageToAllPlayers(message);
   }
 
   finishRound(): void {
+    this.foodGenerator.stopGeneratingFood();
+    clearInterval(this.updateInterval);
     this.field.clearField();
     const topPlayers = this.getTopTenPlayers();
     const message = {
@@ -53,6 +58,7 @@ export default class Game {
       data: this.field.getAllObjects(),
     }
     this.networkChannel.sendMessageToAllPlayers(message);
+    this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 60);
     this.foodGenerator.startGeneratingFood(this.notifyPlayersAboutNewFood.bind(this));
 
     this.timer = setTimeout(this.finishRound.bind(this), 1000 * 60 * 2)
@@ -63,9 +69,9 @@ export default class Game {
       case ClientMessageType.START_GAME:
         this.handleNewPlayer(message.data.name, id);
         break;
-      case ClientMessageType.CHANGE_POSITION:
-        const { x, y } = message.data;
-        this.handlePlayerPositionUpdate(id, x, y);
+      case ClientMessageType.CHANGE_DIRECTION:
+        const { direction } = message.data;
+        this.handlePlayerPositionUpdate(id, direction);
         break;
     }
   }
@@ -78,26 +84,30 @@ export default class Game {
     const color = getRandomColor();
     const player = new Player(name, id, this.DEFAULT_PLAYER_RADIUS, color);
     this.field.addObject(player);
-
-    const message = {
-      type: ServerMessageType.START_NEW_ROUND,
-      data: this.field.getAllObjects(),
-    }
-    this.networkChannel.sendMessageToAllPlayers(message);
   }
 
-  private handlePlayerPositionUpdate(id: string, x: number, y: number): void {
-    this.field.updateObjectPosition(id, x, y);
-    const players = this.field.getAllObjects();
-
-    const message = {
-      type: ServerMessageType.UPDATE_ENEMIES_POSITIONS,
-      data: {
-        ...players
+  private sendFieldUpdateToPlayers(): void {
+    const players = this.field.getAllPlayers();
+    players.forEach(player => player.updatePosition());
+    const food = this.field.getAllFood()
+    players.forEach((player) => {
+      const currentPlayer = player.getSerialisedData();
+      const enemies = players.filter((enemy) => enemy.id !== player.id).map(enemy => enemy.getSerialisedData())
+      const foodData = food.map(foodItem => foodItem.getSerialisedData())
+      const message = {
+        type: ServerMessageType.UPDATE_FIELD,
+        data: {
+          currentPlayer,
+          enemies,
+          food: foodData
+        }
       }
-    }
+      this.networkChannel.sendMessageToPlayer(player.id, message);
+    })
+  }
 
-    this.networkChannel.sendMessageToAllPlayers(message);
+  private handlePlayerPositionUpdate(id: string, direction: number): void {
+    this.field.getAllPlayers().find(player => player.id === id).updateDirection(direction);
   }
 
   private getTopTenPlayers(): { name: string, radius: number }[] {

@@ -30,7 +30,7 @@ class Game {
     public handleServerUpdates(): void {
         this.websocketService.addMessageHandler((message => {
             switch (message.type) {
-                case ServerMessageType.UPDATE_ENEMIES_POSITIONS:
+                case ServerMessageType.UPDATE_FIELD:
                     this.fieldService.drawField(message.data, this.name);
                     break;
                 case ServerMessageType.GAME_OVER:

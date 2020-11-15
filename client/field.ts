@@ -1,4 +1,5 @@
 import Player from "../shared/player";
+import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
 
 const BALL_RADIUS = 20;
 
@@ -15,8 +16,8 @@ class Field {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
         this.context = this.canvas?.getContext("2d");
 
-        this.canvas.width = 10000;
-        this.canvas.height = 10000;
+        this.canvas.width = FIELD_WIDTH;
+        this.canvas.height = FIELD_HEIGHT;
 
         return this.canvas;
     }

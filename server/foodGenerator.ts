@@ -27,4 +27,8 @@ export default class FoodGenerator {
   startGeneratingFood(callback: (food: Food) => void): void {
     this.foodGenerationInterval = setInterval(this.generateFood.bind(this, callback), 1000);
   }
+
+  stopGeneratingFood(): void {
+    clearInterval(this.foodGenerationInterval);
+  }
 }

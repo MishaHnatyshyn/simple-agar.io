@@ -1,10 +1,10 @@
 export enum ClientMessageType {
-  CHANGE_POSITION = 'change_position',
+  CHANGE_DIRECTION = 'change_direction',
   START_GAME = 'start_game',
 }
 
 export enum ServerMessageType {
-  UPDATE_ENEMIES_POSITIONS = 'update_enemies_position',
+  UPDATE_FIELD = 'update_field',
   FINISH_ROUND = 'finish_round',
   START_NEW_ROUND = 'start_new_round',
   GAME_OVER = 'game_over',
