@@ -8,7 +8,7 @@ export default class FoodGenerator {
     private foodGenerationInterval,
   ) {}
 
-  generateFood(callback: (food: Food) => void): void {
+  public generateFood(callback: (food: Food) => void): void {
     if (this.field.getFoodCount() >= this.maxFoodCount) {
       return;
     }
@@ -18,17 +18,17 @@ export default class FoodGenerator {
     callback(newFood);
   }
 
-  generateInitialFood(): void {
+  public generateInitialFood(): void {
     [...new Array(20)].forEach(() => {
       this.field.addObject(new Food());
     })
   }
 
-  startGeneratingFood(callback: (food: Food) => void): void {
+  public startGeneratingFood(callback: (food: Food) => void): void {
     this.foodGenerationInterval = setInterval(this.generateFood.bind(this, callback), 1000);
   }
 
-  stopGeneratingFood(): void {
+  public stopGeneratingFood(): void {
     clearInterval(this.foodGenerationInterval);
   }
 }

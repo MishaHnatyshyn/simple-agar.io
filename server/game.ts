@@ -20,13 +20,13 @@ export default class Game {
     private foodGenerator: FoodGenerator,
   ) {}
 
-  start(): void {
+  public start(): void {
     this.networkChannel.attachMessageHandler(this.handleNewPlayerMessage.bind(this))
     this.networkChannel.attachDisconnectHandler(this.handlePlayerExit.bind(this))
     this.startRound();
   }
 
-  notifyPlayersAboutNewFood(food: Food): void {
+  public notifyPlayersAboutNewFood(food: Food): void {
     const message = {
       type: ServerMessageType.NEW_FOOD,
       data: food.getSerialisedData(),
@@ -35,7 +35,7 @@ export default class Game {
     // this.networkChannel.sendMessageToAllPlayers(message);
   }
 
-  finishRound(): void {
+  public finishRound(): void {
     this.foodGenerator.stopGeneratingFood();
     clearInterval(this.updateInterval);
     this.field.clearField();
@@ -50,7 +50,7 @@ export default class Game {
     setTimeout(this.startRound.bind(this), 100);
   }
 
-  startRound(): void {
+  public startRound(): void {
     this.foodGenerator.generateInitialFood();
     const message = {
       type: ServerMessageType.START_NEW_ROUND,
@@ -138,6 +138,7 @@ export default class Game {
         }
       })
     });
+
     const food = this.field.getAllFood()
     players.forEach((player) => {
       const currentPlayer = player.getSerialisedData();

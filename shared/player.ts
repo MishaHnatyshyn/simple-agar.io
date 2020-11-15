@@ -41,7 +41,7 @@ export default class Player extends GameObject {
     this._direction = direction;
   }
 
-  getSerialisedData() {
+  public getSerialisedData() {
     const baseData = super.getSerialisedData();
     return {
       ...baseData,
@@ -50,7 +50,7 @@ export default class Player extends GameObject {
     }
   }
 
-  kill(): void {
+  public kill(): void {
     this._isDead = true;
   }
 

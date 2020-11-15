@@ -3,6 +3,7 @@ import Food from '../shared/food';
 import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
 import { Position } from '../shared/position.interface';
 import Player from '../shared/player';
+import FieldZone from "./fieldZone";
 
 export default class Field {
   private zones: FieldZone[][];
@@ -29,7 +30,7 @@ export default class Field {
 
   protected objects: GameObject[] = [];
 
-  getFoodCount(): number {
+  public getFoodCount(): number {
     return this.zones
       .flat(1)
       .map(zone => zone.objects.filter(object => object instanceof Food))
@@ -37,7 +38,7 @@ export default class Field {
       .length
   }
 
-  updateObjectZone(object: GameObject, prevCoords: Position, nextCoords: Position): void {
+  public updateObjectZone(object: GameObject, prevCoords: Position, nextCoords: Position): void {
     const prevZone = this.getZoneByPosition(prevCoords.x, prevCoords.y);
     const nextZone = this.getZoneByPosition(nextCoords.x, nextCoords.y);
     if (prevZone !== nextZone) {
@@ -46,7 +47,7 @@ export default class Field {
     }
   }
 
-  addObject(object: GameObject): void {
+  public addObject(object: GameObject): void {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
     if (!zone) {
       console.log(object.position)
@@ -54,9 +55,34 @@ export default class Field {
     zone?.addObject(object);
   }
 
-  removeObject(object: GameObject): void {
+  public removeObject(object: GameObject): void {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
     zone?.removeObject(object);
+  }
+
+  public getAllObjects(): Object[] {
+    return this.zones.flat(1).map(zone => zone.objects).flat(1);
+  }
+
+  public clearField(): void {
+    this.zones.flat(1).forEach(zone => zone.clearField());
+  }
+
+  public getAllFood(): Food[] {
+    return this.zones
+      .flat(1)
+      .map(zone => zone.objects.filter((object: GameObject) => object instanceof Food))
+      .flat(1);
+  }
+
+  public getNeighbourPlayers(object: GameObject): Player[] {
+    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    return zone.getAllPlayers().filter(player => player !== object);
+  }
+
+  public getNeighbourFood(object: GameObject): Food[] {
+    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    return zone.getAllFood();
   }
 
   private getZoneByPosition(x: number, y: number): FieldZone {
@@ -66,55 +92,7 @@ export default class Field {
       return isXCordInsideZone && isYCordInsideZone;
     })
   }
-
-  getAllObjects(): Object[] {
-    return this.zones.flat(1).map(zone => zone.objects).flat(1);
-  }
-
-  clearField(): void {
-    this.zones.flat(1).forEach(zone => zone.clearField());
-  }
-
-  getAllFood(): Food[] {
-    return this.zones
-      .flat(1)
-      .map(zone => zone.objects.filter((object: GameObject) => object instanceof Food))
-      .flat(1);
-  }
-
-  getNeighbourPlayers(object: GameObject): Player[] {
-    const zone = this.getZoneByPosition(object.position.x, object.position.y);
-    return zone.getAllPlayers().filter(player => player !== object);
-  }
-
-  getNeighbourFood(object: GameObject): Food[] {
-    const zone = this.getZoneByPosition(object.position.x, object.position.y);
-    return zone.getAllFood();
-  }
 }
 
-class FieldZone extends Field {
-  constructor(
-    public readonly leftTopCornerPosition: Position,
-    public readonly rightBottomPosition: Position,
-  ) {
-    super();
-  }
 
-  addObject(object: GameObject) {
-    this.objects.push(object);
-  }
-
-  removeObject(object: GameObject): void {
-    this.objects = this.objects.filter(object => object.id !== object.id);
-  }
-
-  getAllPlayers(): Player[] {
-    return this.objects.filter((object: GameObject) => object instanceof Player) as Player[]
-  }
-
-  getAllFood(): Food[] {
-    return this.objects.filter((object: GameObject) => object instanceof Food) as Food[]
-  }
-}
 

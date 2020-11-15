@@ -23,7 +23,7 @@ export default class GameObject {
     return this._id;
   }
 
-  getSerialisedData() {
+  public getSerialisedData() {
     return {
       position: this._position,
       color: this._color,

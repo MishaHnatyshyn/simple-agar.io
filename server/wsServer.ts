@@ -16,7 +16,7 @@ export default class WsServer extends NetworkChannel {
     this.ws = new Server({ port: 8080 });
   }
 
-  startListening(): void {
+  public startListening(): void {
     this.ws.addListener('connection', (socket: WebSocketWithId) => {
       socket.id = uuid();
       this.connections.push(socket);
@@ -33,11 +33,11 @@ export default class WsServer extends NetworkChannel {
     })
   }
 
-  sendMessageToPlayer(id: string, message: ServerMessage) {
+  public sendMessageToPlayer(id: string, message: ServerMessage) {
     this.connections.find(connection => connection.id === id)?.send(JSON.stringify(message))
   }
 
-  sendMessageToAllPlayers(message: ServerMessage) {
+  public sendMessageToAllPlayers(message: ServerMessage) {
     this.connections.forEach(client => client.send(JSON.stringify(message)))
   }
 }
