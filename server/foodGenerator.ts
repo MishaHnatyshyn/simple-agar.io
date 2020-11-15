@@ -19,7 +19,7 @@ export default class FoodGenerator {
   }
 
   generateInitialFood(): void {
-    [...new Array(100)].forEach(() => {
+    [...new Array(20)].forEach(() => {
       this.field.addObject(new Food());
     })
   }

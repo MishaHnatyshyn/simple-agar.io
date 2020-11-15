@@ -51,12 +51,12 @@ export default class Field {
     if (!zone) {
       console.log(object.position)
     }
-    zone.addObject(object);
+    zone?.addObject(object);
   }
 
   removeObject(object: GameObject): void {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
-    zone.removeObject(object);
+    zone?.removeObject(object);
   }
 
   private getZoneByPosition(x: number, y: number): FieldZone {
