@@ -1,13 +1,13 @@
 import Player from '../shared/player';
+import player from '../shared/player';
 import Field from './field';
 import {INetworkChannel} from './networkChannel.interface';
 import {ClientMessage, ClientMessageType, ServerMessageType} from '../shared/message.interface';
-import Timer = NodeJS.Timer;
-import player from '../shared/player';
 import {getRandomColor} from './utils';
-import Timeout = NodeJS.Timeout;
 import Food from '../shared/food';
 import FoodGenerator from './foodGenerator';
+import Timer = NodeJS.Timer;
+import Timeout = NodeJS.Timeout;
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
@@ -91,12 +91,52 @@ export default class Game {
   private sendFieldUpdateToPlayers(): void {
     const players = this.players;
     players.forEach(player => {
+      if (player.isDead) {
+        return;
+      }
       const prevPosition = player.position;
       player.updatePosition()
       const nextPosition = player.position;
       if (prevPosition !== nextPosition) {
         this.field.updateObjectZone(player, prevPosition, nextPosition);
       }
+      const neighbourFood = this.field.getNeighbourFood(player);
+      const playerSquare = Math.PI * player.radius ** 2;
+      neighbourFood.forEach((food) => {
+        const distance = Math.sqrt(((food.position.x - player.position.x) ** 2) + ((food.position.y - player.position.y) ** 2))
+        const radiusSum = food.radius + player.radius;
+        if (distance < radiusSum - 0.3 * food.radius) {
+          const foodSquare = Math.PI * food.radius ** 2;
+          const resultSquare = foodSquare + playerSquare;
+          const resultRadius = Math.sqrt(resultSquare / Math.PI);
+          player.updateRadius(resultRadius);
+          this.field.removeObject(food);
+        }
+      })
+
+      const neighbourPlayers = this.field.getNeighbourPlayers(player)
+      neighbourPlayers.forEach((enemy) => {
+        if (enemy.isDead || player.isDead) {
+          return;
+        }
+        const distance = Math.sqrt(((enemy.position.x - player.position.x) ** 2) + ((enemy.position.y - player.position.y) ** 2))
+        const radiusSum = enemy.radius + player.radius;
+        if (distance < radiusSum - 0.3 * enemy.radius) {
+          const enemySquare = Math.PI * enemy.radius ** 2;
+          const resultSquare = enemySquare + playerSquare;
+          const resultRadius = Math.sqrt(resultSquare / Math.PI);
+          if (player.radius > enemy.radius) {
+            player.updateRadius(resultRadius);
+            this.field.removeObject(enemy);
+            enemy.kill();
+          } else {
+            enemy.updateRadius(resultRadius);
+            this.field.removeObject(player);
+            player.kill();
+          }
+
+        }
+      })
     });
     const food = this.field.getAllFood()
     players.forEach((player) => {
@@ -112,7 +152,16 @@ export default class Game {
         }
       }
       this.networkChannel.sendMessageToPlayer(player.id, message);
+
+      if (player.isDead) {
+        this.networkChannel.sendMessageToPlayer(player.id, {
+          type: ServerMessageType.GAME_OVER,
+          data: {}
+        })
+      }
     })
+
+    this.players = this.players.filter(player => !player.isDead)
   }
 
   private handlePlayerPositionUpdate(id: string, direction: number): void {

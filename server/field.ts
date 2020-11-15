@@ -2,6 +2,7 @@ import GameObject from '../shared/gameObject';
 import Food from '../shared/food';
 import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
 import { Position } from '../shared/position.interface';
+import Player from '../shared/player';
 
 export default class Field {
   private zones: FieldZone[][];
@@ -47,6 +48,9 @@ export default class Field {
 
   addObject(object: GameObject): void {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    if (!zone) {
+      console.log(object.position)
+    }
     zone.addObject(object);
   }
 
@@ -77,6 +81,16 @@ export default class Field {
       .map(zone => zone.objects.filter((object: GameObject) => object instanceof Food))
       .flat(1);
   }
+
+  getNeighbourPlayers(object: GameObject): Player[] {
+    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    return zone.getAllPlayers().filter(player => player !== object);
+  }
+
+  getNeighbourFood(object: GameObject): Food[] {
+    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    return zone.getAllFood();
+  }
 }
 
 class FieldZone extends Field {
@@ -93,6 +107,14 @@ class FieldZone extends Field {
 
   removeObject(object: GameObject): void {
     this.objects = this.objects.filter(object => object.id !== object.id);
+  }
+
+  getAllPlayers(): Player[] {
+    return this.objects.filter((object: GameObject) => object instanceof Player) as Player[]
+  }
+
+  getAllFood(): Food[] {
+    return this.objects.filter((object: GameObject) => object instanceof Food) as Food[]
   }
 }
 
