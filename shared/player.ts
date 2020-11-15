@@ -4,7 +4,7 @@ import GameObject from './gameObject';
 export default class Player extends GameObject {
   constructor(
     public readonly name: string,
-    public readonly id: string,
+    id: string,
     radius: number,
     color: Color,
   ) {
@@ -12,6 +12,7 @@ export default class Player extends GameObject {
     this._position = { x: 0, y: 0};
     this._radius = radius;
     this._color = color;
+    this._id = id;
   }
 
   public updatePosition(x: number, y: number): void {

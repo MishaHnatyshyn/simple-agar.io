@@ -8,6 +8,7 @@ export enum ServerMessageType {
   FINISH_ROUND = 'finish_round',
   START_NEW_ROUND = 'start_new_round',
   GAME_OVER = 'game_over',
+  NEW_FOOD = 'new_food',
 }
 
 export interface BaseMessage<T, D = any> {

@@ -24,7 +24,8 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                loader: 'ts-loader'
+                loader: 'ts-loader',
+                exclude: [path.join(__dirname, 'server')]
             },
             {
                 test: /\.(sa|sc|c)ss$/,

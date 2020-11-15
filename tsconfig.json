@@ -15,5 +15,6 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true
-  }
+  },
+  "exclude": ["server"]
 }

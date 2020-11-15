@@ -5,6 +5,7 @@ export default class GameObject {
   protected _position: Position;
   protected _color: Color;
   protected _radius: number;
+  protected _id: string;
 
   get position(): Position {
     return this._position;
@@ -16,5 +17,9 @@ export default class GameObject {
 
   get color(): Color {
     return this._color;
+  }
+
+  get id(): string {
+    return this._id;
   }
 }

@@ -1,0 +1,2 @@
+const FIELD_WIDTH = 10000;
+const FIELD_HEIGHT = 10000;

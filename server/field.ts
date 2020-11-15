@@ -1,25 +1,34 @@
 import Player from '../shared/player';
+import GameObject from '../shared/gameObject';
+import Food from '../shared/food';
 
 export default class Field {
-  private players: Player[] = [];
+  private objects: GameObject[] = [];
 
-  addPlayer(player: Player): void {
-    this.players.push(player);
+  getFoodCount(): number {
+    return this.objects.filter(object => object instanceof Food).length
   }
 
-  removePlayer(id: string): void {
-    this.players = this.players.filter((player) => player.id !== id);
+  addObject(object: GameObject): void {
+    this.objects.push(object)
   }
 
-  getAllPlayers(): Player[] {
-    return this.players;
+  removeObject(id: string): void {
+    this.objects = this.objects.filter(object => object.id !== id);
   }
 
-  updatePlayerPosition(id: string, x: number, y: number): void {
-    this.players.find(player => player.id === id)?.updatePosition(x, y);
+  getAllObjects(): Object[] {
+    return this.objects;
+  }
+
+  updateObjectPosition(id: string, x: number, y: number): void {
+    const object = this.objects.find(object => object.id === id);
+    if (object instanceof Player) {
+      object.updatePosition(x, y);
+    }
   }
 
   clearField(): void {
-    this.players = [];
+    this.objects = [];
   }
 }
