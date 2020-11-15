@@ -5,7 +5,7 @@ import { Position } from '../shared/position.interface';
 import Player from '../shared/player';
 import FieldZone from "./fieldZone";
 
-export default class Field {
+export class Field {
   private zones: FieldZone[][];
   constructor(
     private width: number = 0,
@@ -20,15 +20,13 @@ export default class Field {
           y: FIELD_HEIGHT / zonesVerticalCount * y,
         }
         const rightBottomCorner = {
-          x: (FIELD_WIDTH / zonesHorizontalCount * (x + 1)) - 1,
-          y: (FIELD_HEIGHT / zonesVerticalCount * (y + 1)) - 1,
+          x: (FIELD_WIDTH / zonesHorizontalCount * (x + 1)),
+          y: (FIELD_HEIGHT / zonesVerticalCount * (y + 1)),
         }
         return new FieldZone(leftTopCorner, rightBottomCorner);
       })
     })
   }
-
-  protected objects: GameObject[] = [];
 
   public getFoodCount(): number {
     return this.zones
@@ -57,7 +55,7 @@ export default class Field {
 
   public removeObject(object: GameObject): void {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
-    zone?.removeObject(object);
+    zone.removeObject(object);
   }
 
   public getAllObjects(): Object[] {
@@ -65,7 +63,7 @@ export default class Field {
   }
 
   public clearField(): void {
-    this.zones.flat(1).forEach(zone => zone.clearField());
+    this.zones.flat(1).forEach(zone => zone.clearObjects());
   }
 
   public getAllFood(): Food[] {
@@ -82,6 +80,15 @@ export default class Field {
 
   public getNeighbourFood(object: GameObject): Food[] {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    if (!zone) {
+      console.log(object);
+      console.log(this.zones.flat(1).map((zone, index) => ({
+        index,
+        leftTopCornerPosition: zone.leftTopCornerPosition,
+        rightBottomPosition: zone.rightBottomPosition
+      })));
+      process.exit(1);
+    }
     return zone.getAllFood();
   }
 
@@ -94,5 +101,4 @@ export default class Field {
   }
 }
 
-
-
+export default Field;

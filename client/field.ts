@@ -53,7 +53,7 @@ class Field {
         const canvasY = window.innerHeight / 2 + ball.position.y - currentPlayerBall.position.y;
 
         this.context.save();
-        this.context.translate(canvasX, canvasY);
+        this.context.translate(30, 30);
         // this.context.rotate(1.05);
         this.context.beginPath()
         this.context.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);

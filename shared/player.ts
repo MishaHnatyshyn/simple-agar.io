@@ -13,7 +13,7 @@ export default class Player extends GameObject {
     private _direction: number = 0,
   ) {
     super();
-    this._position = { x: 0, y: 0};
+    this._position = { x: radius, y: radius};
     this._radius = radius;
     this._color = color;
     this._id = id;
@@ -25,10 +25,10 @@ export default class Player extends GameObject {
     const newX = this.position.x + xShift;
     const newY = this.position.y - yShift;
 
-    if (newX >= 0 && newX <= FIELD_HEIGHT) {
+    if (newX >= this._radius && newX <= FIELD_WIDTH - this._radius) {
       this.position.x = newX;
     }
-    if (newY >= 0 && newY <= FIELD_WIDTH) {
+    if (newY >= this._radius && newY <= FIELD_HEIGHT - this._radius) {
       this.position.y = newY;
     }
   }
