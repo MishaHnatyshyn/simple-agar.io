@@ -31,7 +31,7 @@ class Game {
         this.websocketService.addMessageHandler((message => {
             switch (message.type) {
                 case ServerMessageType.UPDATE_FIELD:
-                    this.fieldService.drawField(message.data, this.name);
+                    this.fieldService.drawField(message.data);
                     break;
                 case ServerMessageType.GAME_OVER:
                     this.endGame();

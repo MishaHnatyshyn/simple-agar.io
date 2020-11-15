@@ -1,7 +1,5 @@
-import Player from "../shared/player";
 import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
-
-const BALL_RADIUS = 20;
+import Player from "../shared/player";
 
 class Field {
     private renderInterval: number;
@@ -22,11 +20,21 @@ class Field {
         return this.canvas;
     }
 
-    public drawField(data: any[], name: string): void {
-        console.log(Object.values(data).find((player: any) => player.name === name));
-        const currentPlayer = Object.values(data).find((player: any) => player.name === name);
-        console.log(currentPlayer);
-        this.drawBall(currentPlayer);
+    public drawField(data: any): void {
+        this.context.clearRect(0, 0, FIELD_WIDTH, FIELD_HEIGHT);
+
+        const currentPlayer = data.currentPlayer;
+        // this.drawBackground();
+        data.food.forEach((ball: Player) => {
+            this.drawBall(currentPlayer, ball);
+        })
+
+        data.enemies.forEach((enemy: Player) => {
+            this.drawBall(currentPlayer, enemy);
+        })
+        this.drawBall(currentPlayer, currentPlayer);
+
+
     }
 
     private drawBackground(): void {
@@ -39,22 +47,20 @@ class Field {
         }
     }
 
-    private drawBall(player: any) {
-        console.log(player);
-        const { _position, _radius, _color } = player;
-        const canvasX = this.canvas.width / 2 + _position.x - _position.x;
-        const canvasY = this.canvas.height / 2 + _position.y - _position.y;
+    private drawBall(currentPlayerBall: Player, ball: Player) {
+        console.log(window.innerHeight, window.innerWidth);
+        const canvasX = window.innerWidth / 2 + ball.position.x - currentPlayerBall.position.x;
+        const canvasY = window.innerHeight / 2 + ball.position.y - currentPlayerBall.position.y;
 
         this.context.save();
-        // this.context.translate(canvasX, canvasY);
+        this.context.translate(canvasX, canvasY);
         // this.context.rotate(1.05);
         this.context.beginPath()
-        this.context.arc(_position.x, _position.y, _radius, 0, 2 * Math.PI);
-        this.context.fillStyle = _color;
+        this.context.arc(ball.position.x, ball.position.y, ball.radius, 0, 2 * Math.PI);
+        this.context.fillStyle = ball.color;
         this.context.fill();
         this.context.restore();
     }
-
 
 }
 
