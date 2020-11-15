@@ -1,5 +1,4 @@
-import Input from "./input";
-import WebsocketService from "./websocket.service";
+import Player from "../shared/player";
 
 const BALL_RADIUS = 20;
 
@@ -8,34 +7,25 @@ class Field {
     private context: CanvasRenderingContext2D;
     private canvas: HTMLCanvasElement;
 
-    constructor(
-        private inputService: Input,
-        private websocketService: WebsocketService
-    ) {}
-
-    public handleField(): void {
-        this.websocketService.createConnection();
-        this.createCanvas();
-        this.startRendering();
-        this.inputService.startMonitoringInput(this.canvas);
-
-        setTimeout(this.stopRendering.bind(this), 5000);
-    }
-
-    public startRendering(): void {
-        this.renderInterval = window.setInterval(this.drawField.bind(this), 1000 / 60);
-    }
-
     public stopRendering(): void {
         clearInterval(this.renderInterval);
     }
 
-    private createCanvas(): void {
+    public createCanvas(): HTMLCanvasElement {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
         this.context = this.canvas?.getContext("2d");
 
         this.canvas.width = 10000;
         this.canvas.height = 10000;
+
+        return this.canvas;
+    }
+
+    public drawField(data: any[], name: string): void {
+        console.log(Object.values(data).find((player: any) => player.name === name));
+        const currentPlayer = Object.values(data).find((player: any) => player.name === name);
+        console.log(currentPlayer);
+        this.drawBall(currentPlayer);
     }
 
     private drawBackground(): void {
@@ -48,23 +38,20 @@ class Field {
         }
     }
 
-    private drawField(): void {
-        this.drawBall({x: 50, y: 70, direction: 2.171186907780511});
-    }
-
-    drawBall(player) {
-        const { x, y, direction } = player;
-        const canvasX = this.canvas.width / 2 + x - player.x;
-        const canvasY = this.canvas.height / 2 + y - player.y;
+    private drawBall(player: any) {
+        console.log(player);
+        const { _position, _radius, _color } = player;
+        const canvasX = this.canvas.width / 2 + _position.x - _position.x;
+        const canvasY = this.canvas.height / 2 + _position.y - _position.y;
 
         this.context.save();
         // this.context.translate(canvasX, canvasY);
-        // this.context.rotate(direction);
+        // this.context.rotate(1.05);
         this.context.beginPath()
-        this.context.arc(x, y, BALL_RADIUS, 0, 2 * Math.PI);
-        this.context.fillStyle = 'red';
+        this.context.arc(_position.x, _position.y, _radius, 0, 2 * Math.PI);
+        this.context.fillStyle = _color;
         this.context.fill();
-        // this.context.restore();
+        this.context.restore();
     }
 
 

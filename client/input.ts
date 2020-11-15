@@ -1,26 +1,33 @@
+import WebsocketService from "./websocket.service";
+import {ClientMessageType} from "../shared/message.interface";
+
 class Input {
+    private mouseInputHandler;
+    constructor(
+        private websocketService: WebsocketService
+    ) {}
+
     public startMonitoringInput(canvas: HTMLCanvasElement): void {
-        canvas.addEventListener('mousemove', this.onMouseInput.bind(this, canvas));
+        this.mouseInputHandler = this.onMouseInput.bind(this, canvas)
+        canvas.addEventListener('mousemove', this.mouseInputHandler);
     }
 
     public stopMonitoringInput(canvas: HTMLCanvasElement): void {
-        canvas.removeEventListener('mousemove', this.onMouseInput.bind(this, canvas));
+        canvas.removeEventListener('mousemove', this.mouseInputHandler);
     }
 
     private onMouseInput(canvas: HTMLCanvasElement, {clientX, clientY}: MouseEvent): void {
-        var rect = canvas.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
         const xCoord = (clientX - rect.left) / (rect.right - rect.left) * canvas.width;
         const yCoord = (clientY - rect.top) / (rect.bottom - rect.top) * canvas.height;
-        console.log({
-            x: (clientX - rect.left) / (rect.right - rect.left) * canvas.width,
-            y: (clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
-        });
         this.handleInput(xCoord, yCoord);
     }
 
     private handleInput(xCoord: number, yCoord: number): void {
         const direction = Math.atan2(xCoord - window.innerWidth / 2, window.innerHeight / 2 - yCoord);
-        console.log(direction);
+        // console.log(direction);
+
+        this.websocketService.sendMessage({type: ClientMessageType.CHANGE_POSITION, data: {x: xCoord, y: yCoord}})
     }
 }
 

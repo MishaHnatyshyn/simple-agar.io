@@ -1,17 +1,31 @@
-import {Message} from "../shared/message.interface";
+import {ClientMessageType, Message} from "../shared/message.interface";
 
 class WebsocketService {
-    private connection: WebSocket | undefined;
+    private connection: WebSocket;
+    private isConnectionReady = false;
+    private messagesQueue: Message[] = [];
 
     createConnection() {
         this.connection = new WebSocket('ws://localhost:8080');
+        this.handleConnectionOpening();
     }
 
-    sendMessage(message: Message<any>) {
-        this.connection?.send(JSON.stringify(message));
+    private handleConnectionOpening() {
+        this.connection.addEventListener('open', () => {
+            this.isConnectionReady = true;
+            this.messagesQueue.forEach(message => this.sendMessage(message))
+        })
     }
 
-    addMessageHandler(handler: (message: Message<any>) => void) {
+    sendMessage(message: Message) {
+        if (this.isConnectionReady) {
+            this.connection?.send(JSON.stringify(message));
+        } else {
+            this.messagesQueue.push(message)
+        }
+    }
+
+    addMessageHandler(handler: (message: Message) => void) {
         this.connection?.addEventListener('message', ({data}: MessageEvent) => {
             handler(JSON.parse(data));
         })

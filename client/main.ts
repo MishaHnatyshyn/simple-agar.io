@@ -2,9 +2,13 @@ import './main.scss'
 import Field from "./field";
 import WebsocketService from "./websocket.service";
 import Input from "./input";
+import Game from "./game";
 
-export const inputService = new Input();
+
 export const websocketService = new WebsocketService();
-export const field = new Field(inputService, websocketService);
+export const inputService = new Input(websocketService);
+export const field = new Field();
+export const game = new Game(websocketService, inputService, field);
 
-document.addEventListener('DOMContentLoaded', field.handleField.bind(field));
+
+document.addEventListener('DOMContentLoaded', game.startGame.bind(game));
