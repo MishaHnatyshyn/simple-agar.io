@@ -1,6 +1,7 @@
 import GameObject from './gameObject';
 import {getRandomColor, getRandomIntInRange} from '../server/utils';
 import {v4 as uuid} from 'uuid';
+import {FIELD_HEIGHT, FIELD_WIDTH} from './constants';
 
 export default class Food extends GameObject {
   constructor() {

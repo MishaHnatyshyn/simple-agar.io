@@ -11,9 +11,7 @@ import FoodGenerator from './foodGenerator';
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
-  private MAX_FOOD_COUNT: number = 500;
   private timer: Timer = null;
-  private foodGenerationInterval: Timeout = null
   constructor(
     private field: Field,
     private networkChannel: INetworkChannel,
@@ -80,6 +78,12 @@ export default class Game {
     const color = getRandomColor();
     const player = new Player(name, id, this.DEFAULT_PLAYER_RADIUS, color);
     this.field.addObject(player);
+
+    const message = {
+      type: ServerMessageType.START_NEW_ROUND,
+      data: this.field.getAllObjects(),
+    }
+    this.networkChannel.sendMessageToAllPlayers(message);
   }
 
   private handlePlayerPositionUpdate(id: string, x: number, y: number): void {
