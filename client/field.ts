@@ -84,6 +84,12 @@ class Field {
             this.context.strokeStyle = 'black';
             this.context.lineWidth = 4;
             this.context.stroke();
+
+            this.context.textAlign = 'center';
+            this.context.textBaseline = 'middle';
+            this.context.font = "bold 18px Arial";
+
+            this.context.fillText(ball.name, canvasX, canvasY - ball.radius - 10)
         }
         this.context.fillStyle = ball.color;
         this.context.fill();
