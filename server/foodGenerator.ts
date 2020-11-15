@@ -19,13 +19,13 @@ export default class FoodGenerator {
   }
 
   public generateInitialFood(): void {
-    [...new Array(20)].forEach(() => {
+    [...new Array(40)].forEach(() => {
       this.field.addObject(new Food());
     })
   }
 
   public startGeneratingFood(callback: (food: Food) => void): void {
-    this.foodGenerationInterval = setInterval(this.generateFood.bind(this, callback), 1000);
+    this.foodGenerationInterval = setInterval(this.generateFood.bind(this, callback), 500);
   }
 
   public stopGeneratingFood(): void {
