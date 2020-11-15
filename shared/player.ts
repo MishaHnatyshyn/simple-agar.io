@@ -3,7 +3,7 @@ import GameObject from './gameObject';
 import {FIELD_HEIGHT, FIELD_WIDTH} from './constants';
 
 export default class Player extends GameObject {
-  private speed: number = 400;
+  private speed: number = 1;
   constructor(
     public readonly name: string,
     id: string,
@@ -19,8 +19,11 @@ export default class Player extends GameObject {
   }
 
   public updatePosition(): void {
-    const newX = 100 * this.speed * Math.sin(this._direction);
-    const newY = 100 * this.speed * Math.cos(this._direction);
+    const xShift = 100 * this.speed * Math.sin(this._direction);
+    const yShift = 100 * this.speed * Math.cos(this._direction);
+    const newX = this.position.x + xShift;
+    const newY = this.position.y - yShift;
+
     if (newX >= 0 && newX <= FIELD_HEIGHT) {
       this.position.x = newX;
     }

@@ -8,13 +8,12 @@ import {getRandomColor} from './utils';
 import Timeout = NodeJS.Timeout;
 import Food from '../shared/food';
 import FoodGenerator from './foodGenerator';
-import GameObject from '../shared/gameObject';
-import food from '../shared/food';
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
   private timer: Timer = null;
   private updateInterval: Timeout = null;
+  private players: Player[] = [];
   constructor(
     private field: Field,
     private networkChannel: INetworkChannel,
@@ -33,7 +32,7 @@ export default class Game {
       data: food.getSerialisedData(),
     }
 
-    this.networkChannel.sendMessageToAllPlayers(message);
+    // this.networkChannel.sendMessageToAllPlayers(message);
   }
 
   finishRound(): void {
@@ -77,18 +76,28 @@ export default class Game {
   }
 
   private handlePlayerExit(id: string): void {
-    this.field.removeObject(id);
+    const playerToDelete = this.players.find(player => player.id === id);
+    this.players = this.players.filter(player => player !== playerToDelete);
+    this.field.removeObject(playerToDelete);
   }
 
   private handleNewPlayer(name: string, id: string): void {
     const color = getRandomColor();
     const player = new Player(name, id, this.DEFAULT_PLAYER_RADIUS, color);
+    this.players.push(player);
     this.field.addObject(player);
   }
 
   private sendFieldUpdateToPlayers(): void {
-    const players = this.field.getAllPlayers();
-    players.forEach(player => player.updatePosition());
+    const players = this.players;
+    players.forEach(player => {
+      const prevPosition = player.position;
+      player.updatePosition()
+      const nextPosition = player.position;
+      if (prevPosition !== nextPosition) {
+        this.field.updateObjectZone(player, prevPosition, nextPosition);
+      }
+    });
     const food = this.field.getAllFood()
     players.forEach((player) => {
       const currentPlayer = player.getSerialisedData();
@@ -107,12 +116,11 @@ export default class Game {
   }
 
   private handlePlayerPositionUpdate(id: string, direction: number): void {
-    this.field.getAllPlayers().find(player => player.id === id).updateDirection(direction);
+    this.players.find(player => player.id === id).updateDirection(direction);
   }
 
   private getTopTenPlayers(): { name: string, radius: number }[] {
-    return this.field.getAllObjects()
-      .filter((object) => object instanceof Player)
+    return this.players
       .sort((a: Player, b: Player) => b.radius - a.radius)
       .slice(0, 10)
       .map(({ radius, name }: player) => ({ radius, name }));

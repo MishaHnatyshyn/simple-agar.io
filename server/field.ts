@@ -1,4 +1,3 @@
-import Player from '../shared/player';
 import GameObject from '../shared/gameObject';
 import Food from '../shared/food';
 import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
@@ -37,17 +36,30 @@ export default class Field {
       .length
   }
 
-  addObject(object: GameObject): void {
-    this.zones[0][0].addObject(object);
+  updateObjectZone(object: GameObject, prevCoords: Position, nextCoords: Position): void {
+    const prevZone = this.getZoneByPosition(prevCoords.x, prevCoords.y);
+    const nextZone = this.getZoneByPosition(nextCoords.x, nextCoords.y);
+    if (prevZone !== nextZone) {
+      prevZone.removeObject(object);
+      nextZone.addObject(object);
+    }
   }
 
-  removeObject(id: string): void {
-    this.objects = this.objects.filter(object => object.id !== id);
+  addObject(object: GameObject): void {
+    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    zone.addObject(object);
+  }
+
+  removeObject(object: GameObject): void {
+    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    zone.removeObject(object);
   }
 
   private getZoneByPosition(x: number, y: number): FieldZone {
     return this.zones.flat(1).find((zone: FieldZone) => {
-      return;
+      const isXCordInsideZone = x >= zone.leftTopCornerPosition.x && x <= zone.rightBottomPosition.x
+      const isYCordInsideZone = y >= zone.leftTopCornerPosition.y && y <= zone.rightBottomPosition.y
+      return isXCordInsideZone && isYCordInsideZone;
     })
   }
 
@@ -57,13 +69,6 @@ export default class Field {
 
   clearField(): void {
     this.zones.flat(1).forEach(zone => zone.clearField());
-  }
-
-  getAllPlayers(): Player[] {
-    return this.zones
-      .flat(1)
-      .map(zone => zone.getAllPlayers())
-      .flat(1);
   }
 
   getAllFood(): Food[] {
@@ -76,18 +81,18 @@ export default class Field {
 
 class FieldZone extends Field {
   constructor(
-    private leftTopCornerPosition: Position,
-    private rightBottomPosition: Position,
+    public readonly leftTopCornerPosition: Position,
+    public readonly rightBottomPosition: Position,
   ) {
     super();
   }
 
-  getAllPlayers(): Player[] {
-    return this.objects.filter((object: GameObject) => object instanceof Player) as Player[]
-  }
-
   addObject(object: GameObject) {
     this.objects.push(object);
+  }
+
+  removeObject(object: GameObject): void {
+    this.objects = this.objects.filter(object => object.id !== object.id);
   }
 }
 

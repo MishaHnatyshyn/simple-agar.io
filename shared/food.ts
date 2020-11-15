@@ -7,7 +7,7 @@ export default class Food extends GameObject {
   constructor() {
     super();
     this._color = getRandomColor();
-    this._position = { x: getRandomIntInRange(0, FIELD_WIDTH), y: getRandomIntInRange(0, FIELD_HEIGHT) };
+    this._position = { x: getRandomIntInRange(0, FIELD_WIDTH - 1), y: getRandomIntInRange(0, FIELD_HEIGHT - 1) };
     this._radius = getRandomIntInRange(5, 20);
     this._id = uuid();
   }
