@@ -69,6 +69,9 @@ export default class Game {
 
   private handlePlayerExit(id: string): void {
     const playerToDelete = this.players.find(player => player.id === id);
+    if(!playerToDelete){
+      return;
+    }
     this.players = this.players.filter(player => player !== playerToDelete);
     this.field.removeObject(playerToDelete);
   }

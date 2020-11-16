@@ -1,5 +1,5 @@
 import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
-import Player from "../shared/player";
+import {Ball} from "../shared/ball.interface";
 
 class Field {
     private context: CanvasRenderingContext2D;
@@ -15,29 +15,25 @@ class Field {
         return this.canvas;
     }
 
-    public drawField(data: any): void {
+    public drawField(data: { currentPlayer: Ball, objects: Ball[] }): void {
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
         const currentPlayer = data.currentPlayer;
-        this.drawBackground(currentPlayer.position.x, currentPlayer.position.y);
-        data.food.forEach((ball: Player) => {
+        this.drawBackground(currentPlayer.x, currentPlayer.y);
+        data.objects.forEach((ball: Ball) => {
             this.drawBall(currentPlayer, ball);
-        })
-
-        data.enemies.forEach((enemy: Player) => {
-            this.drawBall(currentPlayer, enemy);
         })
         this.drawBall(currentPlayer, currentPlayer);
         this.drawBorder(currentPlayer);
     }
 
-    private drawBorder(currentPlayer: Player): void {
+    private drawBorder(currentPlayer: Ball): void {
         this.context.beginPath();
         this.context.strokeStyle = 'black';
         this.context.lineWidth = 5;
         this.context.strokeRect(
-            this.canvas.width / 2 - currentPlayer.position.x,
-            this.canvas.height / 2 - currentPlayer.position.y,
+            this.canvas.width / 2 - currentPlayer.x,
+            this.canvas.height / 2 - currentPlayer.y,
             FIELD_WIDTH,
             FIELD_HEIGHT
         );
@@ -67,9 +63,9 @@ class Field {
         this.context.stroke();
     }
 
-    private drawBall(currentPlayerBall: Player, ball: Player) {
-        const canvasX = this.canvas.width / 2 + ball.position.x - currentPlayerBall.position.x;
-        const canvasY = this.canvas.height / 2 + ball.position.y - currentPlayerBall.position.y;
+    private drawBall(currentPlayerBall: Ball, ball: Ball) {
+        const canvasX = this.canvas.width / 2 + ball.x - currentPlayerBall.x;
+        const canvasY = this.canvas.height / 2 + ball.y - currentPlayerBall.y;
 
         this.context.save();
         this.context.translate(0, 0);

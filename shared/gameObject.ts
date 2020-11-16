@@ -1,5 +1,6 @@
 import { Position } from './position.interface'
 import {Color} from './colors.enum';
+import {Ball} from "./ball.interface";
 
 export default class GameObject {
   protected _position: Position;
@@ -23,7 +24,7 @@ export default class GameObject {
     return this._id;
   }
 
-  public getSerialisedData() {
+  public getSerialisedData(): Ball {
     return {
       x: this._position.x,
       y: this._position.y,

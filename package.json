@@ -35,12 +35,6 @@
     "deploy:client": "gh-pages -d dist",
     "build:deploy:client": "npm run build:client && npm run deploy:client"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
   "browserslist": {
     "production": [
       ">0.2%",
