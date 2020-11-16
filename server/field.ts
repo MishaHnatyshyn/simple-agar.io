@@ -92,17 +92,18 @@ export class Field {
     return zone.getAllFood();
   }
 
-  public getObjectsForUpdate(object: GameObject): { food: Food[], players: Player[] } {
-    let x, y;
-    this.zones.forEach((zoneList, row) => {
-      zoneList.forEach((zone, column) => {
-        if (zone.objects.includes(object)) {
-          x = row;
-          y = column;
+  private getObjectZonePosition(object: GameObject): Position {
+    for (let x = 0; x < this.zones.length; x++) {
+      for (let y = 0; y < this.zones[x].length; y++) {
+        if (this.zones[x][y].objects.includes(object)) {
+          return { x, y }
         }
-      })
-    })
-    console.log(x, y)
+      }
+    }
+  }
+
+  public getObjectsForUpdate(object: GameObject): GameObject[] {
+    const { x, y } = this.getObjectZonePosition(object);
 
     const zones = [];
 
@@ -118,13 +119,8 @@ export class Field {
     }
 
     return zones
-      .map((zone: FieldZone) => zone.getSeparatedObjects())
-      .reduce((acc, curr) => {
-        return {
-          food: [...acc.food, ...curr.food],
-          players: [...acc.players, ...curr.players],
-        }
-      }, { food: [], players: []})
+      .map((zone: FieldZone) => zone.getAllObjects())
+      .flat()
   }
 
   private getZoneByPosition(x: number, y: number): FieldZone {

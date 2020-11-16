@@ -3,8 +3,7 @@ import player from '../shared/player';
 import Field from './field';
 import {INetworkChannel} from './networkChannel.interface';
 import {ClientMessage, ClientMessageType, ServerMessageType} from '../shared/message.interface';
-import {getRandomColor} from './utils';
-import Food from '../shared/food';
+import {getRandomColor} from '../shared/utils';
 import FoodGenerator from './foodGenerator';
 import Timer = NodeJS.Timer;
 import Timeout = NodeJS.Timeout;
@@ -25,15 +24,6 @@ export default class Game {
     this.networkChannel.attachMessageHandler(this.handleNewPlayerMessage.bind(this))
     this.networkChannel.attachDisconnectHandler(this.handlePlayerExit.bind(this))
     this.startRound();
-  }
-
-  public notifyPlayersAboutNewFood(food: Food): void {
-    const message = {
-      type: ServerMessageType.NEW_FOOD,
-      data: food.getSerialisedData(),
-    }
-
-    // this.networkChannel.sendMessageToAllPlayers(message);
   }
 
   public finishRound(): void {
@@ -60,7 +50,7 @@ export default class Game {
     }
     this.networkChannel.sendMessageToAllPlayers(message);
     this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 60);
-    this.foodGenerator.startGeneratingFood(this.notifyPlayersAboutNewFood.bind(this));
+    this.foodGenerator.startGeneratingFood();
 
     this.timer = setTimeout(this.finishRound.bind(this), 1000 * 60 * 2)
   }
@@ -144,17 +134,20 @@ export default class Game {
     players.forEach((player) => {
       const currentPlayer = player.getSerialisedData();
 
-      const { players: allPlayers, food } = this.field.getObjectsForUpdate(player);
-
-      const enemies = allPlayers.filter((enemy) => enemy.id !== player.id).map(enemy => enemy.getSerialisedData())
-      const foodData = food.map(foodItem => foodItem.getSerialisedData());
+      const objects = this.field
+        .getObjectsForUpdate(player)
+        .reduce((acc, curr) => {
+          if (curr !== player) {
+            acc.push(curr.getSerialisedData())
+          }
+          return acc;
+        }, []);
 
       const message = {
         type: ServerMessageType.UPDATE_FIELD,
         data: {
           currentPlayer,
-          enemies,
-          food: foodData
+          objects
         }
       }
       this.networkChannel.sendMessageToPlayer(player.id, message);

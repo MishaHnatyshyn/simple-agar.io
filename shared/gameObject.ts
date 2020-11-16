@@ -25,10 +25,10 @@ export default class GameObject {
 
   public getSerialisedData() {
     return {
-      position: this._position,
+      x: this._position.x,
+      y: this._position.y,
       color: this._color,
       radius: this._radius,
-      id: this._id,
     }
   }
 }

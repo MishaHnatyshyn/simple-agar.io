@@ -1,7 +1,7 @@
 import {Color} from './colors.enum';
 import GameObject from './gameObject';
 import {FIELD_HEIGHT, FIELD_WIDTH} from './constants';
-import {getRandomPosition} from '../server/utils';
+import {getRandomPosition} from './utils';
 
 export default class Player extends GameObject {
   private _isDead: boolean = false;
@@ -51,7 +51,6 @@ export default class Player extends GameObject {
     return {
       ...baseData,
       name: this.name,
-      direction: this._direction
     }
   }
 

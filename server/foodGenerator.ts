@@ -8,14 +8,13 @@ export default class FoodGenerator {
     private foodGenerationInterval,
   ) {}
 
-  public generateFood(callback: (food: Food) => void): void {
+  public generateFood(): void {
     if (this.field.getFoodCount() >= this.maxFoodCount) {
       return;
     }
 
     const newFood = new Food();
     this.field.addObject(newFood);
-    callback(newFood);
   }
 
   public generateInitialFood(): void {
@@ -24,8 +23,8 @@ export default class FoodGenerator {
     })
   }
 
-  public startGeneratingFood(callback: (food: Food) => void): void {
-    this.foodGenerationInterval = setInterval(this.generateFood.bind(this, callback), 500);
+  public startGeneratingFood(): void {
+    this.foodGenerationInterval = setInterval(this.generateFood.bind(this), 500);
   }
 
   public stopGeneratingFood(): void {

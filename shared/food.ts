@@ -1,5 +1,5 @@
 import GameObject from './gameObject';
-import {getRandomColor, getRandomIntInRange, getRandomPosition} from '../server/utils';
+import {getRandomColor, getRandomIntInRange, getRandomPosition} from './utils';
 import {v4 as uuid} from 'uuid';
 
 export default class Food extends GameObject {
