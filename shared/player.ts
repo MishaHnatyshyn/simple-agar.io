@@ -1,6 +1,7 @@
 import {Color} from './colors.enum';
 import GameObject from './gameObject';
 import {FIELD_HEIGHT, FIELD_WIDTH} from './constants';
+import {getRandomPosition} from '../server/utils';
 
 export default class Player extends GameObject {
   private _isDead: boolean = false;
@@ -10,16 +11,20 @@ export default class Player extends GameObject {
     id: string,
     radius: number,
     color: Color,
-    private _direction: number = 0,
+    private _direction: number = null,
   ) {
     super();
-    this._position = { x: radius, y: radius};
+    this._position = getRandomPosition();
     this._radius = radius;
     this._color = color;
     this._id = id;
   }
 
   public updatePosition(): void {
+    if (!this._direction) {
+      return;
+    }
+
     const xShift = 100 * this.speed * Math.sin(this._direction);
     const yShift = 100 * this.speed * Math.cos(this._direction);
     const newX = this.position.x + xShift;
