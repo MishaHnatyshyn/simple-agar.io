@@ -14,6 +14,33 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root">
       <canvas id="canvas"></canvas>
+      <div id="startGamePopup">
+        <div class="popup">
+          <p class="header">This is Agar.io simplified version</p>
+          <label class="usernameLabel">
+            To start the game input your username
+            <input placeholder="username" id="username" class="usernameInput">
+            <p id="notValidUsername">Username is not unique</p>
+          </label>
+          <button id="start">Start game</button>
+        </div>
+      </div>
+
+      <div id="roundEndedPopup">
+        <div class="popup">
+          <p class="header">The round has finished</p>
+          <div id="playersBoard"></div>
+          <button id="startRound">Start new round</button>
+        </div>
+      </div>
+
+      <div id="gameOverPopup">
+        <div class="popup">
+          <p class="header">Your game is over</p>
+          <button id="startNewGame">Start new game</button>
+        </div>
+      </div>
+
     </div>
   </body>
 </html>
