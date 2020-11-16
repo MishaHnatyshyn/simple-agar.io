@@ -2,22 +2,28 @@ import WebsocketService from "./websocket.service";
 import {ClientMessageType} from "../shared/message.interface";
 
 class RoundEndedPopup {
+    private roundEndedPopup: HTMLElement;
+    private startRoundButton: HTMLElement;
+
     constructor(
         private websocketService: WebsocketService
-    ) {}
+    ) {
+        this.roundEndedPopup = document.getElementById('roundEndedPopup');
+        this.startRoundButton = document.getElementById('startRound');
+    }
 
     public handleRoundEnded(roundEndedHandler: () => void, startNewGameHandler: () => void, name: string): void {
-        document.getElementById('roundEndedPopup').style.display = 'block';
+        this.roundEndedPopup.style.display = 'block';
         roundEndedHandler();
         this.startNewRound(name, startNewGameHandler);
     }
 
     private startNewRound(name: string, startNewGameHandler: () => void): void {
-        document.getElementById('startRound').addEventListener('click', () => {
+        this.startRoundButton.addEventListener('click', () => {
             this.websocketService.sendMessage({type: ClientMessageType.START_GAME, data: { name }});
             startNewGameHandler();
 
-            document.getElementById('roundEndedPopup').style.display = 'none';
+            this.roundEndedPopup.style.display = 'none';
         })
     }
 }

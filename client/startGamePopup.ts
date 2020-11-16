@@ -3,24 +3,31 @@ import WebsocketService from "./websocket.service";
 
 class StartGamePopup {
     private name: string;
+    private startGameButton: HTMLElement;
+    private usernameInput: HTMLElement;
+    private notValidUsernameError: HTMLElement;
+    private startGamePopup: HTMLElement;
 
     constructor(
        private websocketService: WebsocketService
-    ) {}
+    ) {
+        this.startGameButton = document.getElementById("start");
+        this.usernameInput = document.getElementById('username');
+        this.notValidUsernameError = document.getElementById('notValidUsername');
+        this.startGamePopup = document.getElementById("startGamePopup");
+    }
 
     public handleGameStart(handler: () => void) {
-        const button = document.getElementById("start");
-
-        button.addEventListener('click', () => {
-            this.name = (document.getElementById('username') as HTMLInputElement).value;
+        this.startGameButton.addEventListener('click', () => {
+            this.name = (this.usernameInput as HTMLInputElement).value;
 
             if (this.isUsernameValid(this.name)) {
-                document.getElementById('notValidUsername').style.display = 'hidden';
+                this.notValidUsernameError.style.display = 'hidden';
                 this.websocketService.sendMessage({type: ClientMessageType.START_GAME, data: { name: this.name }});
                 handler();
-                document.getElementById("startGamePopup").style.display = 'none';
+                this.startGamePopup.style.display = 'none';
             } else  {
-                document.getElementById('notValidUsername').style.visibility = 'visible';
+                this.notValidUsernameError.style.visibility = 'visible';
             }
         })
     }
