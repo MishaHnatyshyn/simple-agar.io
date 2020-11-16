@@ -92,6 +92,41 @@ export class Field {
     return zone.getAllFood();
   }
 
+  public getObjectsForUpdate(object: GameObject): { food: Food[], players: Player[] } {
+    let x, y;
+    this.zones.forEach((zoneList, row) => {
+      zoneList.forEach((zone, column) => {
+        if (zone.objects.includes(object)) {
+          x = row;
+          y = column;
+        }
+      })
+    })
+    console.log(x, y)
+
+    const zones = [];
+
+    for (let targetX = x - 2; targetX <= x + 2; targetX++) {
+      for (let targetY = y - 2; targetY <= y + 2; targetY++) {
+        if (
+          targetX >= 0 && targetX < this.zones.length
+          && targetY >=0 && targetY < this.zones[0].length
+        ) {
+          zones.push(this.zones[targetX][targetY])
+        }
+      }
+    }
+
+    return zones
+      .map((zone: FieldZone) => zone.getSeparatedObjects())
+      .reduce((acc, curr) => {
+        return {
+          food: [...acc.food, ...curr.food],
+          players: [...acc.players, ...curr.players],
+        }
+      }, { food: [], players: []})
+  }
+
   private getZoneByPosition(x: number, y: number): FieldZone {
     return this.zones.flat(1).find((zone: FieldZone) => {
       const isXCordInsideZone = x >= zone.leftTopCornerPosition.x && x <= zone.rightBottomPosition.x

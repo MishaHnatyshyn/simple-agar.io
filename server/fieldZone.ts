@@ -22,8 +22,23 @@ export default class FieldZone {
         return this.objects.filter((object: GameObject) => object instanceof Player) as Player[]
     }
 
+    public getSeparatedObjects(): { food: Food[], players: Player[] } {
+        return this.objects.reduce((acc, curr) => {
+            if (curr instanceof Player) {
+                acc.players.push(curr)
+            } else {
+                acc.food.push(curr)
+            }
+            return acc;
+        }, { food: [], players: []})
+    }
+
     public getAllFood(): Food[] {
         return this.objects.filter((object: GameObject) => object instanceof Food) as Food[]
+    }
+
+    public getAllObjects(): GameObject[] {
+        return this.objects;
     }
 
     public clearObjects(): void {
