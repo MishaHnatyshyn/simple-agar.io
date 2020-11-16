@@ -1,3 +1,5 @@
+import webpack from "webpack";
+
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -25,6 +27,9 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 loader: 'ts-loader',
+                options: {
+                    configFile: "tsconfig.client.json"
+                },
                 exclude: [path.join(__dirname, 'server')]
             },
             {
@@ -50,6 +55,9 @@ module.exports = {
         }),
         new MiniCssExtractPlugin({
             filename: 'style-[hash].css',
-        })
+        }),
+      new webpack.EnvironmentPlugin({
+          WS_URL: process.env.WS_URL || 'ws://localhost:8080'
+      })
     ]
 };

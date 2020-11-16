@@ -26,12 +26,13 @@
     "ws": "^7.4.0"
   },
   "scripts": {
-    "start": "webpack serve --mode=development",
-    "build": "webpack",
-    "build:prod": "webpack --mode=production",
-    "start:server": "ts-node --project server/tsconfig.json server/index.ts",
+    "start": "node serverBuild/server/index.js",
+    "start:client:dev": "webpack serve --mode=development",
+    "build:client": "webpack --mode=production",
+    "build:server": "tsc --project tsconfig.server.json",
+    "start:server:dev": "ts-node --project tsconfig.server.json server/index.ts",
     "deploy:client": "gh-pages -d dist",
-    "build:deploy:client": "npm run build && npm run deploy:client",
+    "build:deploy:client": "npm run build && npm run deploy:client"
   },
   "eslintConfig": {
     "extends": [

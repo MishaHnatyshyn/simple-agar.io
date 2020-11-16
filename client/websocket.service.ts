@@ -6,7 +6,7 @@ class WebsocketService {
     private messagesQueue: Message[] = [];
 
     createConnection() {
-        this.connection = new WebSocket('ws://localhost:8080');
+        this.connection = new WebSocket(process.env.WS_URL);
         this.handleConnectionOpening();
     }
 
