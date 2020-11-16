@@ -1,4 +1,4 @@
-import {ClientMessageType, Message} from "../shared/message.interface";
+import {Message} from "../shared/message.interface";
 
 class WebsocketService {
     private connection: WebSocket;

@@ -8,6 +8,7 @@ import Food from '../shared/food';
 import FoodGenerator from './foodGenerator';
 import Timer = NodeJS.Timer;
 import Timeout = NodeJS.Timeout;
+import {TopPlayer} from "../shared/topPlayers.interface";
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
@@ -40,6 +41,7 @@ export default class Game {
     clearInterval(this.updateInterval);
     this.field.clearField();
     const topPlayers = this.getTopTenPlayers();
+
     const message = {
       type: ServerMessageType.FINISH_ROUND,
       data: {
@@ -48,6 +50,7 @@ export default class Game {
     }
     this.networkChannel.sendMessageToAllPlayers(message);
     setTimeout(this.startRound.bind(this), 100);
+    this.players = [];
   }
 
   public startRound(): void {
@@ -166,10 +169,10 @@ export default class Game {
   }
 
   private handlePlayerPositionUpdate(id: string, direction: number): void {
-    this.players.find(player => player.id === id).updateDirection(direction);
+    this.players.find(player => player.id === id)?.updateDirection(direction);
   }
 
-  private getTopTenPlayers(): { name: string, radius: number }[] {
+  private getTopTenPlayers(): TopPlayer[] {
     return this.players
       .sort((a: Player, b: Player) => b.radius - a.radius)
       .slice(0, 10)

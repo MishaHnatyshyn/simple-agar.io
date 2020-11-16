@@ -1,6 +1,7 @@
 .popup {
   width: 400px;
-  height: 300px;
+  min-height: 300px;
+  height: max-content;
   box-sizing: border-box;
   padding: 20px;
   background-color: white;
@@ -62,4 +63,19 @@
 
 #start:active, #startRound:active, #startNewGame:active {
   background-color: #db043d;
+}
+
+.gameOverHeader {
+  margin-top: 80px;
+}
+
+.boardPlayer {
+  display: flex;
+  justify-content: space-between;
+}
+
+#playersBoard {
+  min-height: 120px;
+  height: max-content;
+  padding: 15px;
 }

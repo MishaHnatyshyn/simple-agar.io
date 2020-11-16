@@ -55,7 +55,8 @@ class Game {
                     this.roundEndedPopup.handleRoundEnded(
                         this.endMonitoringGame.bind(this),
                         this.startMonitoringInput.bind(this),
-                        this.startGamePopup.getUsername()
+                        this.startGamePopup.getUsername(),
+                        message.data.topPlayers
                     )
                     break;
             }
