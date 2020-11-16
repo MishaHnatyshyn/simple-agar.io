@@ -27,6 +27,7 @@
   },
   "scripts": {
     "start": "node serverBuild/server/index.js",
+    "build": "npm run build:server",
     "start:client:dev": "webpack serve --mode=development",
     "build:client": "webpack --mode=production",
     "build:server": "tsc --project tsconfig.server.json",
