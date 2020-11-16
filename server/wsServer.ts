@@ -8,12 +8,13 @@ interface WebSocketWithId extends WebSocket{
 }
 
 export default class WsServer extends NetworkChannel {
+  private readonly port = Number(process.env.PORT) || 8080;
   private ws: Server;
   private connections: WebSocketWithId[];
   constructor() {
     super();
     this.connections = [];
-    this.ws = new Server({ port: 8080 });
+    this.ws = new Server({ port: this.port });
   }
 
   public startListening(): void {
