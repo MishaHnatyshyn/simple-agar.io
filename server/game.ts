@@ -41,7 +41,6 @@ export default class Game {
     clearInterval(this.updateInterval);
     this.field.clearField();
     const topPlayers = this.getTopTenPlayers();
-
     const message = {
       type: ServerMessageType.FINISH_ROUND,
       data: {
@@ -49,15 +48,15 @@ export default class Game {
       }
     }
     this.networkChannel.sendMessageToAllPlayers(message);
-    setTimeout(this.startRound.bind(this), 100);
     this.players = [];
+    this.startRound();
   }
 
   public startRound(): void {
     this.foodGenerator.generateInitialFood();
     const message = {
       type: ServerMessageType.START_NEW_ROUND,
-      data: this.field.getAllObjects(),
+      data: {}
     }
     this.networkChannel.sendMessageToAllPlayers(message);
     this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 60);
@@ -97,10 +96,10 @@ export default class Game {
       if (player.isDead) {
         return;
       }
-      const prevPosition = player.position;
+      const prevPosition = {...player.position};
       player.updatePosition()
       const nextPosition = player.position;
-      if (prevPosition !== nextPosition) {
+      if (prevPosition.x !== nextPosition.x || prevPosition.y !== nextPosition.y) {
         this.field.updateObjectZone(player, prevPosition, nextPosition);
       }
       const neighbourFood = this.field.getNeighbourFood(player);
@@ -142,11 +141,14 @@ export default class Game {
       })
     });
 
-    const food = this.field.getAllFood()
     players.forEach((player) => {
       const currentPlayer = player.getSerialisedData();
-      const enemies = players.filter((enemy) => enemy.id !== player.id).map(enemy => enemy.getSerialisedData())
-      const foodData = food.map(foodItem => foodItem.getSerialisedData())
+
+      const { players: allPlayers, food } = this.field.getObjectsForUpdate(player);
+
+      const enemies = allPlayers.filter((enemy) => enemy.id !== player.id).map(enemy => enemy.getSerialisedData())
+      const foodData = food.map(foodItem => foodItem.getSerialisedData());
+
       const message = {
         type: ServerMessageType.UPDATE_FIELD,
         data: {
