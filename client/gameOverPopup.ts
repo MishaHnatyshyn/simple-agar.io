@@ -13,7 +13,7 @@ class GameOverPopup {
     }
 
     public handleGameOver(gameOverHandler: () => void, startNewGameHandler: () => void, name: string): void {
-        this.gameOverPopup.style.display = 'block';
+        this.gameOverPopup.style.display = 'flex';
         gameOverHandler();
         this.startNewGame(name, startNewGameHandler);
     }

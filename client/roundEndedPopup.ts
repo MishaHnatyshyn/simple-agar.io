@@ -13,7 +13,7 @@ class RoundEndedPopup {
     }
 
     public handleRoundEnded(roundEndedHandler: () => void, startNewGameHandler: () => void, name: string): void {
-        this.roundEndedPopup.style.display = 'block';
+        this.roundEndedPopup.style.display = 'flex';
         roundEndedHandler();
         this.startNewRound(name, startNewGameHandler);
     }

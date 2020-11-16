@@ -2,13 +2,8 @@ import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
 import Player from "../shared/player";
 
 class Field {
-    private renderInterval: number;
     private context: CanvasRenderingContext2D;
     private canvas: HTMLCanvasElement;
-
-    public stopRendering(): void {
-        clearInterval(this.renderInterval);
-    }
 
     public createCanvas(): HTMLCanvasElement {
         this.canvas = document.getElementById("canvas") as HTMLCanvasElement;

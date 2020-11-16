@@ -34,8 +34,7 @@ class Game {
         this.inputService.startMonitoringInput(this.canvas);
     }
 
-    public endGame(): void {
-        this.fieldService.stopRendering();
+    public endMonitoringGame(): void {
         this.inputService.stopMonitoringInput(this.canvas);
     }
 
@@ -47,14 +46,14 @@ class Game {
                     break;
                 case ServerMessageType.GAME_OVER:
                     this.gameOverPopup.handleGameOver(
-                        this.endGame.bind(this),
+                        this.endMonitoringGame.bind(this),
                         this.startMonitoringInput.bind(this),
                         this.startGamePopup.getUsername()
                     )
                     break;
                 case ServerMessageType.FINISH_ROUND:
                     this.roundEndedPopup.handleRoundEnded(
-                        this.endGame.bind(this),
+                        this.endMonitoringGame.bind(this),
                         this.startMonitoringInput.bind(this),
                         this.startGamePopup.getUsername()
                     )

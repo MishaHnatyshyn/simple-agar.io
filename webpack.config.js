@@ -1,9 +1,11 @@
-import webpack from "webpack";
+const webpack = require('webpack');
 
 const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
     entry: './client/main.ts',
@@ -57,7 +59,7 @@ module.exports = {
             filename: 'style-[hash].css',
         }),
       new webpack.EnvironmentPlugin({
-          WS_URL: process.env.WS_URL || 'ws://localhost:8080'
+          WS_URL: isProd ? 'wss://agar-io-ws-server.herokuapp.com/' : 'ws://localhost:8080',
       })
     ]
 };
