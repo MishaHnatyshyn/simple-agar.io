@@ -49,7 +49,7 @@ export default class Game {
       data: {}
     }
     this.networkChannel.sendMessageToAllPlayers(message);
-    this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 60);
+    this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 40);
     this.foodGenerator.startGeneratingFood();
 
     this.timer = setTimeout(this.finishRound.bind(this), 1000 * 60 * 2)
@@ -85,85 +85,87 @@ export default class Game {
 
   private sendFieldUpdateToPlayers(): void {
     const players = this.players;
-    players.forEach(player => {
-      if (player.isDead) {
-        return;
-      }
-      const prevPosition = {...player.position};
-      player.updatePosition()
-      const nextPosition = player.position;
-      if (prevPosition.x !== nextPosition.x || prevPosition.y !== nextPosition.y) {
-        this.field.updateObjectZone(player, prevPosition, nextPosition);
-      }
-      const neighbourFood = this.field.getNeighbourFood(player);
-      const playerSquare = Math.PI * player.radius ** 2;
-      neighbourFood.forEach((food) => {
-        const distance = Math.sqrt(((food.position.x - player.position.x) ** 2) + ((food.position.y - player.position.y) ** 2))
-        const radiusSum = food.radius + player.radius;
-        if (distance < radiusSum - 0.3 * food.radius) {
-          const foodSquare = Math.PI * food.radius ** 2;
-          const resultSquare = foodSquare + playerSquare;
-          const resultRadius = Math.sqrt(resultSquare / Math.PI);
-          player.updateRadius(resultRadius);
-          this.field.removeObject(food);
-        }
-      })
+    players.forEach(this.handlePlayerInteraction.bind(this));
+    players.forEach(this.gatherDataAndSendUpdateToPlayer.bind(this))
+    this.players = this.players.filter(player => !player.isDead)
+  }
 
-      const neighbourPlayers = this.field.getNeighbourPlayers(player)
-      neighbourPlayers.forEach((enemy) => {
-        if (enemy.isDead || player.isDead) {
-          return;
-        }
-        const distance = Math.sqrt(((enemy.position.x - player.position.x) ** 2) + ((enemy.position.y - player.position.y) ** 2))
-        const radiusSum = enemy.radius + player.radius;
-        if (distance < radiusSum - 0.3 * enemy.radius) {
-          const enemySquare = Math.PI * enemy.radius ** 2;
-          const resultSquare = enemySquare + playerSquare;
-          const resultRadius = Math.sqrt(resultSquare / Math.PI);
-          if (player.radius > enemy.radius) {
-            player.updateRadius(resultRadius);
-            this.field.removeObject(enemy);
-            enemy.kill();
-          } else {
-            enemy.updateRadius(resultRadius);
-            this.field.removeObject(player);
-            player.kill();
-          }
-
-        }
-      })
-    });
-
-    players.forEach((player) => {
-      const currentPlayer = player.getSerialisedData();
-
-      const objects = this.field
-        .getObjectsForUpdate(player)
-        .reduce((acc, curr) => {
-          if (curr !== player) {
-            acc.push(curr.getSerialisedData())
-          }
-          return acc;
-        }, []);
-
-      const message = {
-        type: ServerMessageType.UPDATE_FIELD,
-        data: {
-          currentPlayer,
-          objects
-        }
-      }
-      this.networkChannel.sendMessageToPlayer(player.id, message);
-
-      if (player.isDead) {
-        this.networkChannel.sendMessageToPlayer(player.id, {
-          type: ServerMessageType.GAME_OVER,
-          data: {}
-        })
+  private handlePlayerInteraction(player: Player): void {
+    if (player.isDead) {
+      return;
+    }
+    const prevPosition = {...player.position};
+    player.updatePosition()
+    const nextPosition = player.position;
+    if (prevPosition.x !== nextPosition.x || prevPosition.y !== nextPosition.y) {
+      this.field.updateObjectZone(player, prevPosition, nextPosition);
+    }
+    const neighbourFood = this.field.getNeighbourFood(player);
+    const playerSquare = Math.PI * player.radius ** 2;
+    neighbourFood.forEach((food) => {
+      const distance = Math.sqrt(((food.position.x - player.position.x) ** 2) + ((food.position.y - player.position.y) ** 2))
+      const radiusSum = food.radius + player.radius;
+      if (distance < radiusSum - 0.3 * food.radius) {
+        const foodSquare = Math.PI * food.radius ** 2;
+        const resultSquare = foodSquare + playerSquare;
+        const resultRadius = Math.sqrt(resultSquare / Math.PI);
+        player.updateRadius(resultRadius);
+        this.field.removeObject(food);
       }
     })
 
-    this.players = this.players.filter(player => !player.isDead)
+    const neighbourPlayers = this.field.getNeighbourPlayers(player)
+    neighbourPlayers.forEach((enemy) => {
+      if (enemy.isDead || player.isDead) {
+        return;
+      }
+      const distance = Math.sqrt(((enemy.position.x - player.position.x) ** 2) + ((enemy.position.y - player.position.y) ** 2))
+      const radiusSum = enemy.radius + player.radius;
+      if (distance < radiusSum - 0.3 * enemy.radius) {
+        const enemySquare = Math.PI * enemy.radius ** 2;
+        const resultSquare = enemySquare + playerSquare;
+        const resultRadius = Math.sqrt(resultSquare / Math.PI);
+        if (player.radius > enemy.radius) {
+          player.updateRadius(resultRadius);
+          this.field.removeObject(enemy);
+          enemy.kill();
+        } else {
+          enemy.updateRadius(resultRadius);
+          this.field.removeObject(player);
+          player.kill();
+        }
+
+      }
+    })
+  }
+
+  private gatherDataAndSendUpdateToPlayer(player: Player): void {
+    if (player.isDead) {
+      return this.networkChannel.sendMessageToPlayer(player.id, {
+        type: ServerMessageType.GAME_OVER,
+        data: {}
+      })
+    }
+
+    const currentPlayer = player.getSerialisedData();
+
+    const objects = this.field
+      .getObjectsForUpdate(player)
+      .reduce((acc, curr) => {
+        if (curr !== player) {
+          acc.push(curr.getSerialisedData())
+        }
+        return acc;
+      }, []);
+
+    const message = {
+      type: ServerMessageType.UPDATE_FIELD,
+      data: {
+        currentPlayer,
+        objects
+      }
+    }
+    this.networkChannel.sendMessageToPlayer(player.id, message);
   }
 
   private handlePlayerPositionUpdate(id: string, direction: number): void {

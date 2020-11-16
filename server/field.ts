@@ -54,7 +54,7 @@ export class Field {
   }
 
   public removeObject(object: GameObject): void {
-    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    const zone = this.getObjectZone(object);
     zone.removeObject(object);
   }
 
@@ -103,8 +103,10 @@ export class Field {
   }
 
   public getObjectsForUpdate(object: GameObject): GameObject[] {
-    const { x, y } = this.getObjectZonePosition(object);
+    const position = this.getObjectZonePosition(object);
+    if (!position) return [];
 
+    const { x, y } = position;
     const zones = [];
 
     for (let targetX = x - 2; targetX <= x + 2; targetX++) {
@@ -120,7 +122,7 @@ export class Field {
 
     return zones
       .map((zone: FieldZone) => zone.getAllObjects())
-      .flat()
+      .flat(1)
   }
 
   private getZoneByPosition(x: number, y: number): FieldZone {
@@ -129,6 +131,10 @@ export class Field {
       const isYCordInsideZone = y >= zone.leftTopCornerPosition.y && y <= zone.rightBottomPosition.y
       return isXCordInsideZone && isYCordInsideZone;
     })
+  }
+
+  private getObjectZone(object: GameObject) {
+    return this.zones.flat().find((zone) => zone.objects.includes(object));
   }
 }
 
