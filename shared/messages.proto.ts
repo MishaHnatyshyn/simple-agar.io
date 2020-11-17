@@ -23,6 +23,18 @@ const UpdateMessage = new Type('UpdateMessage')
 
 root.add(UpdateMessage);
 
+const DirectionData = new Type('DirectionData')
+    .add(new Field('direction', 1, 'float'));
+
+root.add(DirectionData);
+
+const UpdateDirectionMessage = new Type('UpdateDirectionMessage')
+    .add(new Field('type', 1, 'string'))
+    .add(new Field('data', 2, 'DirectionData'));
+
+root.add(UpdateDirectionMessage);
+
 export {
-  UpdateMessage
+  UpdateMessage,
+  UpdateDirectionMessage
 }

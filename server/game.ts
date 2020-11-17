@@ -77,6 +77,9 @@ export default class Game {
   }
 
   private handleNewPlayer(name: string, id: string): void {
+    if(this.players.some((player) => player.name === name)) {
+      return;
+    }
     const color = getRandomColor();
     const player = new Player(name, id, this.DEFAULT_PLAYER_RADIUS, color);
     this.players.push(player);

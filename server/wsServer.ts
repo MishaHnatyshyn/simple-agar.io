@@ -1,8 +1,8 @@
 import WebSocket, {Server} from 'ws';
-import {ClientMessage, ServerMessage, ServerMessageType} from '../shared/message.interface';
+import {ServerMessage, ServerMessageType} from '../shared/message.interface';
 import {v4 as uuid} from 'uuid';
 import {NetworkChannel} from './networkChannel.interface';
-import {UpdateMessage} from '../shared/messages.proto';
+import {UpdateDirectionMessage, UpdateMessage} from '../shared/messages.proto';
 
 interface WebSocketWithId extends WebSocket{
   id: string
@@ -23,9 +23,11 @@ export default class WsServer extends NetworkChannel {
       socket.id = uuid();
       this.connections.push(socket);
       this.connectionHandlers.forEach(handler => handler(socket.id));
-      socket.addListener('message', (data: string) => {
-        const parsedData: ClientMessage = JSON.parse(data);
-        this.messageHandlers.forEach(handler => handler(parsedData, socket.id));
+      socket.addListener('message', (data: string | ArrayBuffer) => {
+        let message = data instanceof Uint8Array
+          ? UpdateDirectionMessage.decode(new Uint8Array(data)) as any
+          : JSON.parse(data as string);
+        this.messageHandlers.forEach(handler => handler(message, socket.id));
       })
 
       socket.addEventListener('close', () => {

@@ -1,5 +1,6 @@
 import WebsocketService from "./websocket.service";
 import {ClientMessageType} from "../shared/message.interface";
+import {UpdateDirectionMessage} from "../shared/messages.proto";
 
 class Input {
     private mouseInputHandler;
@@ -25,8 +26,8 @@ class Input {
 
     private handleInput(xCoord: number, yCoord: number): void {
         const direction = Math.atan2(xCoord - window.innerWidth / 2, window.innerHeight / 2 - yCoord);
-
-        this.websocketService.sendMessage({type: ClientMessageType.CHANGE_DIRECTION, data: {direction}})
+        const encoded = UpdateDirectionMessage.encode({type: ClientMessageType.CHANGE_DIRECTION, data: {direction}}).finish();
+        this.websocketService.sendMessage(encoded)
     }
 }
 

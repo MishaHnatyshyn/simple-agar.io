@@ -19,9 +19,13 @@ class WebsocketService {
         })
     }
 
-    sendMessage(message: Message) {
+    sendMessage(message: Message | any) {
         if (this.isConnectionReady) {
-            this.connection?.send(JSON.stringify(message));
+            if(message instanceof Uint8Array) {
+                this.connection?.send(message);
+            } else {
+                this.connection?.send(JSON.stringify(message));
+            }
         } else {
             this.messagesQueue.push(message)
         }
@@ -31,7 +35,6 @@ class WebsocketService {
         this.connection?.addEventListener('message', async (event: MessageEvent) => {
             if (event.data instanceof ArrayBuffer) {
                 const res = UpdateMessage.decode(new Uint8Array(event.data)) as any;
-                console.log(res?.data?.objects);
                 handler((res as unknown) as Message);
             } else handler(JSON.parse(event.data));
         })
