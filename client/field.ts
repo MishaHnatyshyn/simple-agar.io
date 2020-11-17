@@ -64,7 +64,7 @@ class Field {
         this.context.stroke();
     }
 
-    private drawBall(currentPlayerBall: Ball, ball: Ball) {
+    private drawBall(currentPlayerBall: Ball, ball: Ball): void {
         const canvasX = this.canvas.width / 2 + ball.x - currentPlayerBall.x;
         const canvasY = this.canvas.height / 2 + ball.y - currentPlayerBall.y;
 

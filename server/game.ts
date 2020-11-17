@@ -2,7 +2,7 @@ import Player from '../shared/player';
 import player from '../shared/player';
 import Field from './field';
 import {INetworkChannel} from './networkChannel.interface';
-import {ClientMessage, ClientMessageType, ServerMessageType} from '../shared/message.interface';
+import {ClientMessage, ClientMessageType, ServerMessage, ServerMessageType} from '../shared/message.interface';
 import {getRandomColor} from '../shared/utils';
 import FoodGenerator from './foodGenerator';
 import {TopPlayer} from "../shared/topPlayers.interface";
@@ -111,25 +111,32 @@ export default class Game {
       })
     }
 
+    const data = this.gatherPlayerDataForUpdate(player);
+    this.sendFieldUpdateToPlayer(player.id, data);
+  }
+
+  private gatherPlayerDataForUpdate(player: Player)  {
     const currentPlayer = player.getSerialisedData();
 
     const objects = this.field
-      .getObjectsForUpdate(player)
-      .reduce((acc, curr) => {
-        if (curr !== player) {
-          acc.push(curr.getSerialisedData())
-        }
-        return acc;
-      }, []);
+        .getObjectsForUpdate(player)
+        .reduce((acc, curr) => {
+          if (curr !== player) {
+            acc.push(curr.getSerialisedData())
+          }
+          return acc;
+        }, []);
 
+    return {currentPlayer, objects};
+  }
+
+  private sendFieldUpdateToPlayer(id: string, data): void {
     const message = {
       type: ServerMessageType.UPDATE_FIELD,
-      data: {
-        currentPlayer,
-        objects
-      }
+      data
     }
-    this.networkChannel.sendMessageToPlayer(player.id, message);
+
+    this.networkChannel.sendMessageToPlayer(id, message);
   }
 
   private handlePlayerPositionUpdate(id: string, direction: number): void {

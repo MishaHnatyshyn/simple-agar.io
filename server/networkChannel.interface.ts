@@ -25,15 +25,15 @@ export abstract class NetworkChannel implements INetworkChannel {
   protected disconnectHandlers: DisconnectHandler[] = [];
   protected messageHandlers: NewMessageHandler[] = [];
 
-  attachConnectHandler(handler: ConnectHandler): void {
+  public attachConnectHandler(handler: ConnectHandler): void {
     this.connectionHandlers.push(handler);
   }
 
-  attachDisconnectHandler(handler: DisconnectHandler): void {
+  public attachDisconnectHandler(handler: DisconnectHandler): void {
     this.disconnectHandlers.push(handler);
   }
 
-  attachMessageHandler(handler: NewMessageHandler): void {
+  public attachMessageHandler(handler: NewMessageHandler): void {
     this.messageHandlers.push(handler)
   }
 

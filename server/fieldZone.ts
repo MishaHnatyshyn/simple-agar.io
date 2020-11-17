@@ -10,7 +10,7 @@ export default class FieldZone {
         public readonly rightBottomPosition: Position,
     ) {}
 
-    public addObject(object: GameObject) {
+    public addObject(object: GameObject): void {
         this.objects.push(object);
     }
 
@@ -20,17 +20,6 @@ export default class FieldZone {
 
     public getAllPlayers(): Player[] {
         return this.objects.filter((object: GameObject) => object instanceof Player) as Player[]
-    }
-
-    public getSeparatedObjects(): { food: Food[], players: Player[] } {
-        return this.objects.reduce((acc, curr) => {
-            if (curr instanceof Player) {
-                acc.players.push(curr)
-            } else {
-                acc.food.push(curr)
-            }
-            return acc;
-        }, { food: [], players: []})
     }
 
     public getAllFood(): Food[] {

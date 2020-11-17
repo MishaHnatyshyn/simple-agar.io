@@ -6,13 +6,13 @@ class WebsocketService {
     private isConnectionReady = false;
     private messagesQueue: Message[] = [];
 
-    createConnection() {
+    public createConnection(): void {
         this.connection = new WebSocket(process.env.WS_URL);
         this.connection.binaryType = "arraybuffer";
         this.handleConnectionOpening();
     }
 
-    private handleConnectionOpening() {
+    private handleConnectionOpening(): void {
         this.connection.addEventListener('open', () => {
             this.isConnectionReady = true;
             this.messagesQueue.forEach(message => this.sendMessage(message))
@@ -23,7 +23,7 @@ class WebsocketService {
         })
     }
 
-    public sendMessage(message: Message | any) {
+    public sendMessage(message: Message | any): void {
         if (this.isConnectionReady) {
             if(message instanceof Uint8Array) {
                 this.connection?.send(message);

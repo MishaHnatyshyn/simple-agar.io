@@ -37,7 +37,7 @@ export default class WsServer extends NetworkChannel {
     })
   }
 
-  public sendMessageToPlayer(id: string, message: ServerMessage) {
+  public sendMessageToPlayer(id: string, message: ServerMessage): void {
     if (message.type === ServerMessageType.UPDATE_FIELD) {
       const encoded = UpdateMessage.encode(message).finish();
       this.connections.find(connection => connection.id === id)?.send(encoded);
@@ -46,7 +46,7 @@ export default class WsServer extends NetworkChannel {
     this.connections.find(connection => connection.id === id)?.send(JSON.stringify(message))
   }
 
-  public sendMessageToAllPlayers(message: ServerMessage) {
+  public sendMessageToAllPlayers(message: ServerMessage): void {
     this.connections.forEach(client => client.send(JSON.stringify(message)))
   }
 }

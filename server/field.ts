@@ -1,6 +1,5 @@
 import GameObject from '../shared/gameObject';
 import Food from '../shared/food';
-import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
 import { Position } from '../shared/position.interface';
 import Player from '../shared/player';
 import FieldZone from "./fieldZone";
@@ -13,19 +12,7 @@ export class Field {
     private zonesHorizontalCount: number = 0,
     private zonesVerticalCount: number = 0,
   ) {
-    this.zones = [...new Array(zonesVerticalCount)].map((_, y) => {
-      return [...new Array(zonesHorizontalCount)].map((_, x) => {
-        const leftTopCorner = {
-          x: FIELD_WIDTH / zonesHorizontalCount * x,
-          y: FIELD_HEIGHT / zonesVerticalCount * y,
-        }
-        const rightBottomCorner = {
-          x: (FIELD_WIDTH / zonesHorizontalCount * (x + 1)),
-          y: (FIELD_HEIGHT / zonesVerticalCount * (y + 1)),
-        }
-        return new FieldZone(leftTopCorner, rightBottomCorner);
-      })
-    })
+    this.createZones();
   }
 
   public getFoodCount(): number {
@@ -121,8 +108,24 @@ export class Field {
     })
   }
 
-  private getObjectZone(object: GameObject) {
+  private getObjectZone(object: GameObject): FieldZone {
     return this.zones.flat().find((zone) => zone.objects.includes(object));
+  }
+
+  private createZones(): void {
+    this.zones = [...new Array(this.zonesVerticalCount)].map((_, y) => {
+      return [...new Array(this.zonesHorizontalCount)].map((_, x) => {
+        const leftTopCorner = {
+          x: this.width / this.zonesHorizontalCount * x,
+          y: this.height / this.zonesVerticalCount * y,
+        }
+        const rightBottomCorner = {
+          x: (this.width / this.zonesHorizontalCount * (x + 1)),
+          y: (this.height / this.zonesVerticalCount * (y + 1)),
+        }
+        return new FieldZone(leftTopCorner, rightBottomCorner);
+      })
+    })
   }
 }
 
