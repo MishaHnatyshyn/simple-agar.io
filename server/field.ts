@@ -47,9 +47,6 @@ export class Field {
 
   public addObject(object: GameObject): void {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
-    if (!zone) {
-      console.log(object.position)
-    }
     zone?.addObject(object);
   }
 
@@ -80,15 +77,6 @@ export class Field {
 
   public getNeighbourFood(object: GameObject): Food[] {
     const zone = this.getZoneByPosition(object.position.x, object.position.y);
-    if (!zone) {
-      console.log(object);
-      console.log(this.zones.flat(1).map((zone, index) => ({
-        index,
-        leftTopCornerPosition: zone.leftTopCornerPosition,
-        rightBottomPosition: zone.rightBottomPosition
-      })));
-      process.exit(1);
-    }
     return zone.getAllFood();
   }
 
