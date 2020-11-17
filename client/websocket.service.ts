@@ -17,9 +17,13 @@ class WebsocketService {
             this.isConnectionReady = true;
             this.messagesQueue.forEach(message => this.sendMessage(message))
         })
+
+        this.connection.addEventListener('close', () => {
+            alert('Can not connect to server');
+        })
     }
 
-    sendMessage(message: Message | any) {
+    public sendMessage(message: Message | any) {
         if (this.isConnectionReady) {
             if(message instanceof Uint8Array) {
                 this.connection?.send(message);
@@ -28,10 +32,11 @@ class WebsocketService {
             }
         } else {
             this.messagesQueue.push(message)
+            alert('The connection with the server is not established. Please try again later');
         }
     }
 
-    addMessageHandler(handler: (message: Message) => void) {
+    public addMessageHandler(handler: (message: Message) => void) {
         this.connection?.addEventListener('message', async (event: MessageEvent) => {
             if (event.data instanceof ArrayBuffer) {
                 const res = UpdateMessage.decode(new Uint8Array(event.data)) as any;
@@ -39,6 +44,8 @@ class WebsocketService {
             } else handler(JSON.parse(event.data));
         })
     }
+
+
 }
 
 export default WebsocketService;
