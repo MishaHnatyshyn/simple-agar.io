@@ -22,15 +22,11 @@ class Game {
     public startGame(): void {
         this.websocketService.createConnection();
         this.canvas = this.fieldService.createCanvas();
-        this.startGamePopup.handleGameStart(this.handleStartGame.bind(this));
-    }
-
-    public handleStartGame(): void {
         this.handleServerUpdates();
-        this.startMonitoringInput();
+        this.startGamePopup.handleGameStart();
     }
 
-    public startMonitoringInput() {
+    public startMonitoringInput(): void {
         this.inputService.startMonitoringInput(this.canvas);
     }
 
@@ -57,6 +53,12 @@ class Game {
                         this.startMonitoringInput.bind(this),
                         this.startGamePopup.getUsername(),
                         message.data.topPlayers
+                    )
+                    break;
+                case ServerMessageType.PLAYER_VALIDATION:
+                    this.startGamePopup.handlePlayerValidation(
+                        message.data.validation,
+                        this.startMonitoringInput.bind(this),
                     )
                     break;
             }

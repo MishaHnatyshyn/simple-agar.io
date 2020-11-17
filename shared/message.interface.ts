@@ -9,6 +9,7 @@ export enum ServerMessageType {
   START_NEW_ROUND,
   GAME_OVER,
   NEW_FOOD,
+  PLAYER_VALIDATION,
 }
 
 export interface BaseMessage<T, D = any> {

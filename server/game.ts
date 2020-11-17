@@ -5,9 +5,11 @@ import {INetworkChannel} from './networkChannel.interface';
 import {ClientMessage, ClientMessageType, ServerMessageType} from '../shared/message.interface';
 import {getRandomColor} from '../shared/utils';
 import FoodGenerator from './foodGenerator';
+import {TopPlayer} from "../shared/topPlayers.interface";
+import GameObject from "../shared/gameObject";
+import {PlayerValidation} from "../shared/playerValidation";
 import Timer = NodeJS.Timer;
 import Timeout = NodeJS.Timeout;
-import {TopPlayer} from "../shared/topPlayers.interface";
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
@@ -77,13 +79,20 @@ export default class Game {
   }
 
   private handleNewPlayer(name: string, id: string): void {
-    if(this.players.some((player) => player.name === name)) {
-      return;
+    const validation = this.isUniqueUsername(name) ? PlayerValidation.valid : PlayerValidation.invalid;
+    const message = {type: ServerMessageType.PLAYER_VALIDATION, data: {validation}};
+    this.networkChannel.sendMessageToPlayer(id, message);
+
+    if(validation === PlayerValidation.valid) {
+      const color = getRandomColor();
+      const player = new Player(name, id, this.DEFAULT_PLAYER_RADIUS, color);
+      this.players.push(player);
+      this.field.addObject(player);
     }
-    const color = getRandomColor();
-    const player = new Player(name, id, this.DEFAULT_PLAYER_RADIUS, color);
-    this.players.push(player);
-    this.field.addObject(player);
+  }
+
+  private isUniqueUsername(name: string): boolean {
+    return name && !this.players.some((player) => player.name === name);
   }
 
   private sendFieldUpdateToPlayers(): void {
