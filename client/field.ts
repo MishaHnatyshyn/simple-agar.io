@@ -47,9 +47,9 @@ class Field {
 
             this.drawBackgroundNetLine(start, end);
         });
-        [...new Array(80)].forEach((_, index) => {
-            const start = { x: 0 - x + this.canvas.width / 2, y: index * FIELD_HEIGHT / 80  - y + this.canvas.height / 2}
-            const end = { x: FIELD_WIDTH - x + this.canvas.width / 2, y: index * FIELD_HEIGHT / 80 - y + this.canvas.height / 2 }
+        [...new Array(55)].forEach((_, index) => {
+            const start = { x: 0 - x + this.canvas.width / 2, y: index * FIELD_HEIGHT / 55  - y + this.canvas.height / 2}
+            const end = { x: FIELD_WIDTH - x + this.canvas.width / 2, y: index * FIELD_HEIGHT / 55 - y + this.canvas.height / 2 }
 
             this.drawBackgroundNetLine(start, end);
         })
