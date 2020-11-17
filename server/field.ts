@@ -58,12 +58,12 @@ export class Field {
   }
 
   public getNeighbourPlayers(object: GameObject): Player[] {
-    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    const zone = this.getObjectZone(object);
     return zone.getAllPlayers().filter(player => player !== object);
   }
 
   public getNeighbourFood(object: GameObject): Food[] {
-    const zone = this.getZoneByPosition(object.position.x, object.position.y);
+    const zone = this.getObjectZone(object);
     return zone.getAllFood();
   }
 
