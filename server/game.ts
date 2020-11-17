@@ -6,13 +6,10 @@ import {ClientMessage, ClientMessageType, ServerMessageType} from '../shared/mes
 import {getRandomColor} from '../shared/utils';
 import FoodGenerator from './foodGenerator';
 import {TopPlayer} from "../shared/topPlayers.interface";
-import GameObject from "../shared/gameObject";
 import {PlayerValidation} from "../shared/playerValidation";
 import Timer = NodeJS.Timer;
 import Timeout = NodeJS.Timeout;
-import Food from '../shared/food';
-import {Position} from '../shared/position';
-import {calculateCircleSquare, calculateDistance, calculateRadiusAfterCirclesMerge} from '../shared/mathHelpers';
+import ObjectInteractionManager from "./objectInteractionManager";
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
@@ -23,6 +20,7 @@ export default class Game {
     private field: Field,
     private networkChannel: INetworkChannel,
     private foodGenerator: FoodGenerator,
+    private objectInteractionManager: ObjectInteractionManager
   ) {}
 
   public start(): void {
@@ -100,71 +98,9 @@ export default class Game {
 
   private sendFieldUpdateToPlayers(): void {
     const players = this.players;
-    players.forEach(this.handlePlayerInteraction.bind(this));
+    players.forEach((player: Player) => this.objectInteractionManager.handlePlayerInteraction(player));
     players.forEach(this.gatherDataAndSendUpdateToPlayer.bind(this))
     this.players = this.players.filter(player => !player.isDead)
-  }
-
-  private updatePlayerPosition(player: Player): void {
-    const prevPosition = {...player.position};
-    player.updatePosition()
-    const nextPosition = player.position;
-    if (prevPosition.x !== nextPosition.x || prevPosition.y !== nextPosition.y) {
-      this.field.updateObjectZone(player, prevPosition, nextPosition);
-    }
-  }
-
-  private handlePlayerInteraction(player: Player): void {
-    if (player.isDead) {
-      return;
-    }
-    this.updatePlayerPosition(player);
-    const neighbourFood = this.field.getNeighbourFood(player);
-    const playerSquare = calculateCircleSquare(player.radius);
-    neighbourFood.forEach((food) => this.handlePlayerInteractionWithFood(player, food, playerSquare))
-
-    const neighbourPlayers = this.field.getNeighbourPlayers(player)
-    neighbourPlayers.forEach((enemy) => this.handleInteractionsWithOtherPlayers(player, enemy, playerSquare));
-  }
-
-  private handlePlayerInteractionWithFood(player: Player, food: Food, playerSquare: number): void {
-    const shouldEatFood = this.getShouldMerge(player, food);
-    if (shouldEatFood) {
-      const foodSquare = calculateCircleSquare(food.radius);
-      const resultRadius = calculateRadiusAfterCirclesMerge(foodSquare, playerSquare)
-      this.performObjectsMerge(player, food, resultRadius);
-    }
-  }
-
-  private handleInteractionsWithOtherPlayers(player: Player, enemy: Player, playerSquare: number): void {
-    if (enemy.isDead || player.isDead) {
-      return;
-    }
-    const shouldMergePlayers = this.getShouldMerge(player, enemy)
-    if (shouldMergePlayers) {
-      const enemySquare = calculateCircleSquare(enemy.radius)
-      const resultRadius = calculateRadiusAfterCirclesMerge(enemySquare, playerSquare)
-      const [winner, looser] = player.radius > enemy.radius ? [player, enemy] : [enemy, player];
-      this.performObjectsMerge(winner, looser, resultRadius);
-    }
-  }
-
-  private performObjectsMerge(winner: GameObject, looser: GameObject, resultRadius: number): void {
-    if (winner instanceof Player) {
-      winner.updateRadius(resultRadius);
-    }
-
-    this.field.removeObject(looser)
-
-    if (looser instanceof Player) {
-      looser.kill();
-    }
-  }
-
-  private getShouldMerge(firstObject: GameObject, secondObject: GameObject): boolean {
-    const distance = calculateDistance(firstObject.position, secondObject.position);
-    const radiusSum = firstObject.radius + secondObject.radius;
-    return distance < radiusSum - 0.3 * secondObject.radius
   }
 
   private gatherDataAndSendUpdateToPlayer(player: Player): void {

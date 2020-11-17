@@ -6,6 +6,7 @@ class RoundEndedPopup {
     private roundEndedPopup: HTMLElement;
     private startRoundButton: HTMLElement;
     private playersLeaderBoard: HTMLElement;
+    private isOnRoundEndedPage = false;
 
     constructor(
         private websocketService: WebsocketService
@@ -16,16 +17,21 @@ class RoundEndedPopup {
     }
 
     public handleRoundEnded(roundEndedHandler: () => void, startNewGameHandler: () => void, name: string, topPlayers: TopPlayer[]): void {
+        if(this.isOnRoundEndedPage) {
+            return;
+        }
         this.roundEndedPopup.style.display = 'flex';
         roundEndedHandler();
         this.drawLeaderBoard(topPlayers);
         this.startNewRound(name, startNewGameHandler);
+        this.isOnRoundEndedPage = true;
     }
 
     private startNewRound(name: string, startNewGameHandler: () => void): void {
         this.startRoundButton.addEventListener('click', () => {
             this.websocketService.sendMessage({type: ClientMessageType.START_GAME, data: { name }});
             startNewGameHandler();
+            this.isOnRoundEndedPage = false;
 
             this.roundEndedPopup.style.display = 'none';
         })
