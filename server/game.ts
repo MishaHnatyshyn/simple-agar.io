@@ -49,7 +49,7 @@ export default class Game {
       data: {}
     }
     this.networkChannel.sendMessageToAllPlayers(message);
-    this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 40);
+    this.updateInterval = setInterval(this.sendFieldUpdateToPlayers.bind(this), 1000 / 30);
     this.foodGenerator.startGeneratingFood();
 
     this.timer = setTimeout(this.finishRound.bind(this), 1000 * 60 * 2)

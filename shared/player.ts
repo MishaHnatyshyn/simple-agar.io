@@ -5,7 +5,7 @@ import {getRandomPosition} from './utils';
 
 export default class Player extends GameObject {
   private _isDead: boolean = false;
-  private speed: number = 0.1;
+  private speed: number = 0.15;
   constructor(
     public readonly name: string,
     id: string,
