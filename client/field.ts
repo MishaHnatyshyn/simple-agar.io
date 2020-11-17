@@ -1,5 +1,6 @@
 import {FIELD_HEIGHT, FIELD_WIDTH} from '../shared/constants';
 import {Ball} from "../shared/ball.interface";
+import {COLORS_MAP} from "../shared/colors.enum";
 
 class Field {
     private context: CanvasRenderingContext2D;
@@ -82,7 +83,7 @@ class Field {
 
             this.context.fillText(ball.name, canvasX, canvasY - ball.radius - 10)
         }
-        this.context.fillStyle = ball.color;
+        this.context.fillStyle = COLORS_MAP[ball.color];
         this.context.fill();
         this.context.restore();
     }

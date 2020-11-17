@@ -1,14 +1,14 @@
 export enum ClientMessageType {
-  CHANGE_DIRECTION = 'change_direction',
-  START_GAME = 'start_game',
+  CHANGE_DIRECTION,
+  START_GAME,
 }
 
 export enum ServerMessageType {
-  UPDATE_FIELD = 'update_field',
-  FINISH_ROUND = 'finish_round',
-  START_NEW_ROUND = 'start_new_round',
-  GAME_OVER = 'game_over',
-  NEW_FOOD = 'new_food',
+  UPDATE_FIELD,
+  FINISH_ROUND,
+  START_NEW_ROUND,
+  GAME_OVER,
+  NEW_FOOD,
 }
 
 export interface BaseMessage<T, D = any> {
