@@ -1,4 +1,5 @@
 import { Message } from "../shared/message.interface";
+import {UpdateMessage} from '../shared/messages.proto';
 
 class WebsocketService {
     private connection: WebSocket;
@@ -7,6 +8,7 @@ class WebsocketService {
 
     createConnection() {
         this.connection = new WebSocket(process.env.WS_URL);
+        this.connection.binaryType = "arraybuffer";
         this.handleConnectionOpening();
     }
 
@@ -26,8 +28,12 @@ class WebsocketService {
     }
 
     addMessageHandler(handler: (message: Message) => void) {
-        this.connection?.addEventListener('message', ({data}: MessageEvent) => {
-            handler(JSON.parse(data));
+        this.connection?.addEventListener('message', async (event: MessageEvent) => {
+            if (event.data instanceof ArrayBuffer) {
+                const res = UpdateMessage.decode(new Uint8Array(event.data)) as any;
+                console.log(res?.data?.objects);
+                handler((res as unknown) as Message);
+            } else handler(JSON.parse(event.data));
         })
     }
 }

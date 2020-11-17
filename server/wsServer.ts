@@ -1,7 +1,8 @@
-import WebSocket, { Server } from 'ws';
-import {ClientMessage, Message, ServerMessage} from '../shared/message.interface';
+import WebSocket, {Server} from 'ws';
+import {ClientMessage, ServerMessage, ServerMessageType} from '../shared/message.interface';
 import {v4 as uuid} from 'uuid';
 import {NetworkChannel} from './networkChannel.interface';
+import {UpdateMessage} from '../shared/messages.proto';
 
 interface WebSocketWithId extends WebSocket{
   id: string
@@ -35,6 +36,11 @@ export default class WsServer extends NetworkChannel {
   }
 
   public sendMessageToPlayer(id: string, message: ServerMessage) {
+    if (message.type === ServerMessageType.UPDATE_FIELD) {
+      const encoded = UpdateMessage.encode(message).finish();
+      this.connections.find(connection => connection.id === id)?.send(encoded);
+      return;
+    }
     this.connections.find(connection => connection.id === id)?.send(JSON.stringify(message))
   }
 
