@@ -10,6 +10,9 @@ import GameObject from "../shared/gameObject";
 import {PlayerValidation} from "../shared/playerValidation";
 import Timer = NodeJS.Timer;
 import Timeout = NodeJS.Timeout;
+import Food from '../shared/food';
+import {Position} from '../shared/position';
+import {calculateCircleSquare, calculateDistance, calculateRadiusAfterCirclesMerge} from '../shared/mathHelpers';
 
 export default class Game {
   private DEFAULT_PLAYER_RADIUS: number = 15;
@@ -102,53 +105,66 @@ export default class Game {
     this.players = this.players.filter(player => !player.isDead)
   }
 
-  private handlePlayerInteraction(player: Player): void {
-    if (player.isDead) {
-      return;
-    }
+  private updatePlayerPosition(player: Player): void {
     const prevPosition = {...player.position};
     player.updatePosition()
     const nextPosition = player.position;
     if (prevPosition.x !== nextPosition.x || prevPosition.y !== nextPosition.y) {
       this.field.updateObjectZone(player, prevPosition, nextPosition);
     }
+  }
+
+  private handlePlayerInteraction(player: Player): void {
+    if (player.isDead) {
+      return;
+    }
+    this.updatePlayerPosition(player);
     const neighbourFood = this.field.getNeighbourFood(player);
-    const playerSquare = Math.PI * player.radius ** 2;
-    neighbourFood.forEach((food) => {
-      const distance = Math.sqrt(((food.position.x - player.position.x) ** 2) + ((food.position.y - player.position.y) ** 2))
-      const radiusSum = food.radius + player.radius;
-      if (distance < radiusSum - 0.3 * food.radius) {
-        const foodSquare = Math.PI * food.radius ** 2;
-        const resultSquare = foodSquare + playerSquare;
-        const resultRadius = Math.sqrt(resultSquare / Math.PI);
-        player.updateRadius(resultRadius);
-        this.field.removeObject(food);
-      }
-    })
+    const playerSquare = calculateCircleSquare(player.radius);
+    neighbourFood.forEach((food) => this.handlePlayerInteractionWithFood(player, food, playerSquare))
 
     const neighbourPlayers = this.field.getNeighbourPlayers(player)
-    neighbourPlayers.forEach((enemy) => {
-      if (enemy.isDead || player.isDead) {
-        return;
-      }
-      const distance = Math.sqrt(((enemy.position.x - player.position.x) ** 2) + ((enemy.position.y - player.position.y) ** 2))
-      const radiusSum = enemy.radius + player.radius;
-      if (distance < radiusSum - 0.3 * enemy.radius) {
-        const enemySquare = Math.PI * enemy.radius ** 2;
-        const resultSquare = enemySquare + playerSquare;
-        const resultRadius = Math.sqrt(resultSquare / Math.PI);
-        if (player.radius > enemy.radius) {
-          player.updateRadius(resultRadius);
-          this.field.removeObject(enemy);
-          enemy.kill();
-        } else {
-          enemy.updateRadius(resultRadius);
-          this.field.removeObject(player);
-          player.kill();
-        }
+    neighbourPlayers.forEach((enemy) => this.handleInteractionsWithOtherPlayers(player, enemy, playerSquare));
+  }
 
-      }
-    })
+  private handlePlayerInteractionWithFood(player: Player, food: Food, playerSquare: number): void {
+    const shouldEatFood = this.getShouldMerge(player, food);
+    if (shouldEatFood) {
+      const foodSquare = calculateCircleSquare(food.radius);
+      const resultRadius = calculateRadiusAfterCirclesMerge(foodSquare, playerSquare)
+      this.performObjectsMerge(player, food, resultRadius);
+    }
+  }
+
+  private handleInteractionsWithOtherPlayers(player: Player, enemy: Player, playerSquare: number): void {
+    if (enemy.isDead || player.isDead) {
+      return;
+    }
+    const shouldMergePlayers = this.getShouldMerge(player, enemy)
+    if (shouldMergePlayers) {
+      const enemySquare = calculateCircleSquare(enemy.radius)
+      const resultRadius = calculateRadiusAfterCirclesMerge(enemySquare, playerSquare)
+      const [winner, looser] = player.radius > enemy.radius ? [player, enemy] : [enemy, player];
+      this.performObjectsMerge(winner, looser, resultRadius);
+    }
+  }
+
+  private performObjectsMerge(winner: GameObject, looser: GameObject, resultRadius: number): void {
+    if (winner instanceof Player) {
+      winner.updateRadius(resultRadius);
+    }
+
+    this.field.removeObject(looser)
+
+    if (looser instanceof Player) {
+      looser.kill();
+    }
+  }
+
+  private getShouldMerge(firstObject: GameObject, secondObject: GameObject): boolean {
+    const distance = calculateDistance(firstObject.position, secondObject.position);
+    const radiusSum = firstObject.radius + secondObject.radius;
+    return distance < radiusSum - 0.3 * secondObject.radius
   }
 
   private gatherDataAndSendUpdateToPlayer(player: Player): void {
